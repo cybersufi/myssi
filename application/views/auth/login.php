@@ -8,7 +8,10 @@
   <!-- /.login-logo -->
   <div class="login-box-body">
     <p class="login-box-msg">Sign in :</p>
-    <?php echo $message;?>
+    <div class="alert alert-danger alert-dismissible">
+      <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+      <b><i class="icon fa fa-ban"></i>Error!!</b> Danger alert preview.
+    </div>
     <?php echo form_open('auth/login');?>
       <div class="form-group has-feedback">
         <?php echo form_input($identity);?>
