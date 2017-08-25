@@ -10,6 +10,8 @@ $config['get_username']						= 'SELECT username FROM users WHERE username = ? GR
 $config['get_email']						= 'SELECT email FROM users WHERE email = ? GROUP BY id ORDER BY id ASC LIMIT 1';
 $config['get_forgotten_pass_time']			= 'SELECT forgotten_password_time FROM users WHERE forgotten_password_code = ?';
 $config['get_default_group_status']			= 'SELECT * FROM users_groups WHERE name = ?';
+$config['get_group_by_guid']				= 'SELECT * FROM groups WHERE id = ?';
+$config['get_user_by_id']					= 'SELECT * FROM users';
 
 
 /*::: UPDATE :::*/
@@ -27,8 +29,8 @@ $config['add_to_group']						= 'INSERT INTO users_groups (user_id, group_id) VAL
 
 
 /*::: DELETE :::*/
-
-
+$config['delete_user_from_group']			= 'DELETE FROM users_groups WHERE user_id = ? AND group_id = ?';
+$config['delete_all_group_frm_user']		= 'DELETE FROM users_groups WHERE user_id = ?';
 
 
 

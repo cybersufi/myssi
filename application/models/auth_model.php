@@ -753,9 +753,10 @@ class Auth_model extends CI_Model
 		$ip_address = $this->_prepare_ip($this->input->ip_address());
 		$salt       = $this->store_salt ? $this->salt() : FALSE;
 		$password   = $this->hash_password($password, $salt);
+		$active = if ($manual_activation) ? 0 : 1;
 
-		//(email,name,phone,photo,users_group_id,password,salt,ip_address,created_on,active)
-		$data = array($email, $name, $phone, $photo, $password, $salt, $ip_address, time(), 0);
+		//(email,name,phone,photo,password,salt,ip_address,created_on,active)
+		$data = array($email, $name, $phone, $photo, $password, $salt, $ip_address, time(), $active);
 		// Users table.
 		$this->db->query($this->sql['register_new_user'], $data);
 		$id = $this->db->insert_id();
@@ -1249,8 +1250,6 @@ class Auth_model extends CI_Model
 	 **/
 	public function add_to_group($group_ids, $user_id=false)
 	{
-		$this->trigger_events('add_to_group');
-
 		// if no id was passed use the current users id
 		$user_id || $user_id = $this->session->userdata('user_id');
 
@@ -1271,7 +1270,7 @@ class Auth_model extends CI_Model
 					$group_name = $this->_cache_groups[$group_id];
 				}
 				else {
-					$group = $this->group($group_id)->result();
+					$group = $this->db->query($this->sql['get_group_by_guid'], array($group_id))->result();
 					$group_name = $group[0]->name;
 					$this->_cache_groups[$group_id] = $group_name;
 				}
@@ -1293,8 +1292,6 @@ class Auth_model extends CI_Model
 	 **/
 	public function remove_from_group($group_ids=false, $user_id=false)
 	{
-		$this->trigger_events('remove_from_group');
-
 		// user id is required
 		if(empty($user_id))
 		{
@@ -1311,7 +1308,7 @@ class Auth_model extends CI_Model
 
 			foreach($group_ids as $group_id)
 			{
-				$this->db->delete($this->tables['users_groups'], array($this->join['groups'] => (float)$group_id, $this->join['users'] => (float)$user_id));
+				$this->db->query($this->sql['delete_user_from_group'], array( (float)$group_id, (float)$user_id));
 				if (isset($this->_cache_user_in_group[$user_id]) && isset($this->_cache_user_in_group[$user_id][$group_id]))
 				{
 					unset($this->_cache_user_in_group[$user_id][$group_id]);
@@ -1323,77 +1320,11 @@ class Auth_model extends CI_Model
 		// otherwise remove user from all groups
 		else
 		{
-			if ($return = $this->db->delete($this->tables['users_groups'], array($this->join['users'] => (float)$user_id))) {
+			if ($return = $this->db->query($this->sql['delete_all_group_frm_user'], array((float)$user_id))) {
 				$this->_cache_user_in_group[$user_id] = array();
 			}
 		}
 		return $return;
-	}
-
-	/**
-	 * groups
-	 *
-	 * @return object
-	 * @author Ben Edmunds
-	 **/
-	public function groups()
-	{
-		$this->trigger_events('groups');
-
-		// run each where that was passed
-		if (isset($this->_ion_where) && !empty($this->_ion_where))
-		{
-			foreach ($this->_ion_where as $where)
-			{
-				$this->db->where($where);
-			}
-			$this->_ion_where = array();
-		}
-
-		if (isset($this->_ion_limit) && isset($this->_ion_offset))
-		{
-			$this->db->limit($this->_ion_limit, $this->_ion_offset);
-
-			$this->_ion_limit  = NULL;
-			$this->_ion_offset = NULL;
-		}
-		else if (isset($this->_ion_limit))
-		{
-			$this->db->limit($this->_ion_limit);
-
-			$this->_ion_limit  = NULL;
-		}
-
-		// set the order
-		if (isset($this->_ion_order_by) && isset($this->_ion_order))
-		{
-			$this->db->order_by($this->_ion_order_by, $this->_ion_order);
-		}
-
-		$this->response = $this->db->get($this->tables['groups']);
-
-		return $this;
-	}
-
-	/**
-	 * group
-	 *
-	 * @return object
-	 * @author Ben Edmunds
-	 **/
-	public function group($id = NULL)
-	{
-		$this->trigger_events('group');
-
-		if (isset($id))
-		{
-			$this->where($this->tables['groups'].'.id', $id);
-		}
-
-		$this->limit(1);
-		$this->order_by('id', 'desc');
-
-		return $this->groups();
 	}
 
 	/**
@@ -1404,27 +1335,22 @@ class Auth_model extends CI_Model
 	 **/
 	public function update($id, array $data)
 	{
-		$this->trigger_events('pre_update_user');
-
-		$user = $this->user($id)->row();
-
+		$user = $this->db->query($this->sql['get_user_by_id'], array((float)$id))->row();
+		
 		$this->db->trans_begin();
 
-		if (array_key_exists($this->identity_column, $data) && $this->identity_check($data[$this->identity_column]) && $user->{$this->identity_column} !== $data[$this->identity_column])
+		if (array_key_exists('email', $data) && $this->email_check($data['email']) && $user->email !== $data['email'])
 		{
 			$this->db->trans_rollback();
 			$this->set_error('account_creation_duplicate_identity');
-
-			$this->trigger_events(array('post_update_user', 'post_update_user_unsuccessful'));
 			$this->set_error('update_unsuccessful');
-
 			return FALSE;
 		}
 
 		// Filter the data passed
 		$data = $this->_filter_data($this->tables['users'], $data);
 
-		if (array_key_exists($this->identity_column, $data) || array_key_exists('password', $data) || array_key_exists('email', $data))
+		if (array_key_exists('email', $data) || array_key_exists('password', $data))
 		{
 			if (array_key_exists('password', $data))
 			{
