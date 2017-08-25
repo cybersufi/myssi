@@ -1270,7 +1270,7 @@ class Auth_model extends CI_Model
 					$group_name = $this->_cache_groups[$group_id];
 				}
 				else {
-					$group = $this->db->query($this->sql['get_group_by_guid'], array($group_id))->result();
+					$group = $this->db->query($this->sql['get_group_by_gid'], array($group_id))->result();
 					$group_name = $group[0]->name;
 					$this->_cache_groups[$group_id] = $group_name;
 				}
@@ -1561,46 +1561,32 @@ class Auth_model extends CI_Model
 	 **/
 	public function login_remembered_user()
 	{
-		$this->trigger_events('pre_login_remembered_user');
-
 		// check for valid data
-		if (!get_cookie($this->config->item('identity_cookie_name', 'ion_auth'))
+		if (!get_cookie($this->config->item('identity_cookie_name', 'auth'))
 			|| !get_cookie($this->config->item('remember_cookie_name', 'ion_auth'))
-			|| !$this->identity_check(get_cookie($this->config->item('identity_cookie_name', 'ion_auth'))))
+			|| !$this->identity_check(get_cookie($this->config->item('identity_cookie_name', 'auth'))))
 		{
-			$this->trigger_events(array('post_login_remembered_user', 'post_login_remembered_user_unsuccessful'));
 			return FALSE;
 		}
 
 		// get the user
-		$this->trigger_events('extra_where');
-		$query = $this->db->select($this->identity_column.', id, email, last_login')
-		                  ->where($this->identity_column, get_cookie($this->config->item('identity_cookie_name', 'ion_auth')))
-		                  ->where('remember_code', get_cookie($this->config->item('remember_cookie_name', 'ion_auth')))
-		                  ->limit(1)
-		    			  ->order_by('id', 'desc')
-		                  ->get($this->tables['users']);
+		$email = get_cookie($this->config->item('identity_cookie_name', 'ion_auth'));
+		$rem_code = get_cookie($this->config->item('remember_cookie_name', 'ion_auth'));
+		$query = $this->db->query($this->sql['get_user_by_remember_code'], array($email, $rem_code));
 
 		// if the user was found, sign them in
 		if ($query->num_rows() == 1)
 		{
 			$user = $query->row();
-
 			$this->update_last_login($user->id);
-
 			$this->set_session($user);
-
 			// extend the users cookies if the option is enabled
-			if ($this->config->item('user_extend_on_login', 'ion_auth'))
+			if ($this->config->item('user_extend_on_login', 'auth'))
 			{
 				$this->remember_user($user->id);
 			}
-
-			$this->trigger_events(array('post_login_remembered_user', 'post_login_remembered_user_successful'));
 			return TRUE;
 		}
-
-		$this->trigger_events(array('post_login_remembered_user', 'post_login_remembered_user_unsuccessful'));
 		return FALSE;
 	}
 
@@ -1615,32 +1601,36 @@ class Auth_model extends CI_Model
 		// bail if the group name was not passed
 		if(!$group_name)
 		{
-			$this->set_error('group_name_required');
+			$this->set_error('Group name is a required field');
 			return FALSE;
 		}
 
 		// bail if the group name already exists
-		$existing_group = $this->db->get_where($this->tables['groups'], array('name' => $group_name))->num_rows();
+		$existing_group = $this->db->query($this->sql['get_group_by_name'], array($group_name)->num_rows();
 		if($existing_group !== 0)
 		{
-			$this->set_error('group_already_exists');
+			$this->set_error('Group name already taken');
 			return FALSE;
 		}
 
-		$data = array('name'=>$group_name,'description'=>$group_description);
-
 		// filter out any data passed that doesnt have a matching column in the groups table
 		// and merge the set group data and the additional data
-		if (!empty($additional_data)) $data = array_merge($this->_filter_data($this->tables['groups'], $additional_data), $data);
-
-		$this->trigger_events('extra_group_set');
+		/*groups (name, description, allow_view_all, allow_manage_projects, allow_manage_tasks, allow_manage_tickets, 
+		allow_manage_users, allow_manage_configuration, allow_manage_tasks_viewonly, allow_manage_discussions, allow_manage_discussion_viewonly) */
+		//if (!empty($additional_data)) $data = array_merge($this->_filter_data($this->tables['groups'], $additional_data), $data);
+		$data_ins = array($group_name, $group_description);
+		if (!empty($additional_data)) {
+			array_push($data_ins, $additional_data);
+		} else {
+			array_push($data_ins, array(0,0,0,0,0,0,0,0));
+		}
 
 		// insert the new group
-		$this->db->insert($this->tables['groups'], $data);
+		$this->db->query($this->sql['create_new_group'], $data_ins);
 		$group_id = $this->db->insert_id();
 
 		// report success
-		$this->set_message('group_creation_successful');
+		$this->set_message('Group created Successfully');
 		// return the brand new group id
 		return $group_id;
 	}
@@ -1651,7 +1641,7 @@ class Auth_model extends CI_Model
 	 * @return bool
 	 * @author aditya menon
 	 **/
-	public function update_group($group_id = FALSE, $group_name = FALSE, $additional_data = array())
+	public function update_group($group_id = FALSE, $group_name = FALSE, $group_description = FALSE, $additional_data = array())
 	{
 		if (empty($group_id)) return FALSE;
 
@@ -1662,10 +1652,10 @@ class Auth_model extends CI_Model
 			// we are changing the name, so do some checks
 
 			// bail if the group name already exists
-			$existing_group = $this->db->get_where($this->tables['groups'], array('name' => $group_name))->row();
+			$existing_group = $this->db->query($this->sql['get_group_by_name'], array($group_name))->row();
 			if(isset($existing_group->id) && $existing_group->id != $group_id)
 			{
-				$this->set_error('group_already_exists');
+				$this->set_error('Group name already taken');
 				return FALSE;
 			}
 
@@ -1673,28 +1663,32 @@ class Auth_model extends CI_Model
 		}
 
 		// restrict change of name of the admin group
-        $group = $this->db->get_where($this->tables['groups'], array('id' => $group_id))->row();
-        if($this->config->item('admin_group', 'ion_auth') === $group->name && $group_name !== $group->name)
+        $group = $this->db->query($this->sql['get_group_by_gid'], array($group_id))->row();
+        if($this->config->item('admin_group', 'auth') === $group->name && $group_name !== $group->name)
         {
-            $this->set_error('group_name_admin_not_alter');
+            $this->set_error('Admin group name can not be changed');
             return FALSE;
         }
 
 
 		// IMPORTANT!! Third parameter was string type $description; this following code is to maintain backward compatibility
 		// New projects should work with 3rd param as array
-		if (is_string($additional_data)) $additional_data = array('description' => $additional_data);
+		//if (is_string($additional_data)) $additional_data = array('description' => $additional_data);
 
+		$data_update = array($group_name, $group_description);
+		if (!empty($additional_data)) {
+			array_push($data_ins, $additional_data);
+		} else {
+			array_push($data_ins, array(0,0,0,0,0,0,0,0));
+		}
+		array_push($data_update, $group_id);
 
 		// filter out any data passed that doesnt have a matching column in the groups table
 		// and merge the set group data and the additional data
-		if (!empty($additional_data)) $data = array_merge($this->_filter_data($this->tables['groups'], $additional_data), $data);
-
-
-		$this->db->update($this->tables['groups'], $data, array('id' => $group_id));
-
-		$this->set_message('group_update_successful');
-
+		//if (!empty($additional_data)) $data = array_merge($this->_filter_data($this->tables['groups'], $additional_data), $data);
+		//$this->db->update($this->tables['groups'], $data, array('id' => $group_id));
+		$this->db->query($this->sql['update_group'], $data_update);
+		$this->set_message('Group details updated');
 		return TRUE;
 	}
 
@@ -1711,93 +1705,31 @@ class Auth_model extends CI_Model
 		{
 			return FALSE;
 		}
-		$group = $this->group($group_id)->row();
-		if($group->name == $this->config->item('admin_group', 'ion_auth'))
+		$group = $this->db->query($this->sql['get_group_by_gid'], array($group_id))->row();
+		if($group->name == $this->config->item('admin_group', 'auth'))
 		{
-			$this->trigger_events(array('post_delete_group', 'post_delete_group_notallowed'));
-			$this->set_error('group_delete_notallowed');
+			$this->set_error('Can\'t delete the administrators\' group');
 			return FALSE;
 		}
-
-		$this->trigger_events('pre_delete_group');
 
 		$this->db->trans_begin();
 
 		// remove all users from this group
-		$this->db->delete($this->tables['users_groups'], array($this->join['groups'] => $group_id));
+		$this->db->query($this->sql['delete_all_user_frm_group'], array($group_id));
 		// remove the group itself
-		$this->db->delete($this->tables['groups'], array('id' => $group_id));
+		$this->db->query($this->sql['delete_group_by_gid'], array($group_id));
 
 		if ($this->db->trans_status() === FALSE)
 		{
 			$this->db->trans_rollback();
-			$this->trigger_events(array('post_delete_group', 'post_delete_group_unsuccessful'));
-			$this->set_error('group_delete_unsuccessful');
+			$this->set_error('Unable to delete group');
 			return FALSE;
 		}
 
 		$this->db->trans_commit();
 
-		$this->trigger_events(array('post_delete_group', 'post_delete_group_successful'));
-		$this->set_message('group_delete_successful');
+		$this->set_message('Group deleted');
 		return TRUE;
-	}
-
-	public function set_hook($event, $name, $class, $method, $arguments)
-	{
-		$this->_ion_hooks->{$event}[$name] = new stdClass;
-		$this->_ion_hooks->{$event}[$name]->class     = $class;
-		$this->_ion_hooks->{$event}[$name]->method    = $method;
-		$this->_ion_hooks->{$event}[$name]->arguments = $arguments;
-	}
-
-	public function remove_hook($event, $name)
-	{
-		if (isset($this->_ion_hooks->{$event}[$name]))
-		{
-			unset($this->_ion_hooks->{$event}[$name]);
-		}
-	}
-
-	public function remove_hooks($event)
-	{
-		if (isset($this->_ion_hooks->$event))
-		{
-			unset($this->_ion_hooks->$event);
-		}
-	}
-
-	protected function _call_hook($event, $name)
-	{
-		if (isset($this->_ion_hooks->{$event}[$name]) && method_exists($this->_ion_hooks->{$event}[$name]->class, $this->_ion_hooks->{$event}[$name]->method))
-		{
-			$hook = $this->_ion_hooks->{$event}[$name];
-
-			return call_user_func_array(array($hook->class, $hook->method), $hook->arguments);
-		}
-
-		return FALSE;
-	}
-
-	public function trigger_events($events)
-	{
-		if (is_array($events) && !empty($events))
-		{
-			foreach ($events as $event)
-			{
-				$this->trigger_events($event);
-			}
-		}
-		else
-		{
-			if (isset($this->_ion_hooks->$events) && !empty($this->_ion_hooks->$events))
-			{
-				foreach ($this->_ion_hooks->$events as $name => $hook)
-				{
-					$this->_call_hook($events, $name);
-				}
-			}
-		}
 	}
 
 	/**
@@ -1861,7 +1793,7 @@ class Auth_model extends CI_Model
 		$_output = '';
 		foreach ($this->messages as $message)
 		{
-			$messageLang = $this->lang->line($message) ? $this->lang->line($message) : '##' . $message . '##';
+			$messageLang = '##' . $message . '##';
 			$_output .= $this->message_start_delimiter . $messageLang . $this->message_end_delimiter;
 		}
 
@@ -1876,22 +1808,9 @@ class Auth_model extends CI_Model
 	 * @return array
 	 * @author Raul Baldner Junior
 	 **/
-	public function messages_array($langify = TRUE)
+	public function messages_array()
 	{
-		if ($langify)
-		{
-			$_output = array();
-			foreach ($this->messages as $message)
-			{
-				$messageLang = $this->lang->line($message) ? $this->lang->line($message) : '##' . $message . '##';
-				$_output[] = $this->message_start_delimiter . $messageLang . $this->message_end_delimiter;
-			}
-			return $_output;
-		}
-		else
-		{
-			return $this->messages;
-		}
+		return $this->messages;
 	}
 
 
@@ -1938,7 +1857,7 @@ class Auth_model extends CI_Model
 		$_output = '';
 		foreach ($this->errors as $error)
 		{
-			$errorLang = $this->lang->line($error) ? $this->lang->line($error) : '##' . $error . '##';
+			$errorLang = '##' . $error . '##';
 			$_output .= $this->error_start_delimiter . $errorLang . $this->error_end_delimiter;
 		}
 
@@ -1955,20 +1874,7 @@ class Auth_model extends CI_Model
 	 **/
 	public function errors_array($langify = TRUE)
 	{
-		if ($langify)
-		{
-			$_output = array();
-			foreach ($this->errors as $error)
-			{
-				$errorLang = $this->lang->line($error) ? $this->lang->line($error) : '##' . $error . '##';
-				$_output[] = $this->error_start_delimiter . $errorLang . $this->error_end_delimiter;
-			}
-			return $_output;
-		}
-		else
-		{
-			return $this->errors;
-		}
+		return $this->errors;
 	}
 
 
@@ -1983,27 +1889,7 @@ class Auth_model extends CI_Model
 	public function clear_errors()
 	{
 		$this->errors = array();
-
 		return TRUE;
-	}
-
-
-
-	protected function _filter_data($table, $data)
-	{
-		$filtered_data = array();
-		$columns = $this->db->list_fields($table);
-
-		if (is_array($data))
-		{
-			foreach ($columns as $column)
-			{
-				if (array_key_exists($column, $data))
-					$filtered_data[$column] = $data[$column];
-			}
-		}
-
-		return $filtered_data;
 	}
 
 	protected function _prepare_ip($ip_address) {
