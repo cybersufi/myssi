@@ -14,13 +14,16 @@ $config['get_group_by_gid']					= 'SELECT * FROM groups WHERE id = ?';
 $config['get_group_by_name']				= 'SELECT * FROM groups WHERE name = ?';
 $config['get_user_by_id']					= 'SELECT * FROM users';
 $config['get_user_by_remember_code']		= 'SELECT id, email, last_login FROM users WHERE email = ? and remember_code = ? ORDER BY id DESC LIMIT 1';
+$config['get_user_by_email']				= 'SELECT email, id, password, active, last_login FROM users WHERE email = ? ORDER BY id DESC LIMIT 1';
 
 
 /*::: UPDATE :::*/
+$config['update_user_lastlogin']			= 'UPDATE users SET last_login = ? WHERE id = ?';
 $config['update_activation'] 				= 'UPDATE users SET activation_code = ?, active = ?  WHERE id = ?';
 $config['clear_forgotten_password_code']	= 'UPDATE users SET forgotten_password_code = ?, forgotten_password_time = ? WHERE forgotten_password_code = ?';
 $config['reset_pass_update']				= 'UPDATE users SET password = ?, remember_code = NULL, forgotten_password_code = NULL, forgotten_password_time = NULL WHERE email = ?';
 $config['change_pass_rcode']				= 'UPDATE users SET password = ?, remember_code = ? WHERE email = ?';
+$config['update_remember_code']				= 'UPDATE users SET remember_code = ? WHERE id = ?';
 $config['set_forgotten_password_code']		= 'UPDATE users SET forgotten_password_code = ?, forgotten_password_time = ? WHERE email = ?';
 $config['set_forgotten_password']			= 'UPDATE users SET password = ?, forgotten_password_code = NULL, active = 1 WHERE forgotten_password_code = ?';
 $config['update_group']						= 'UPDATE groups SET name = ?, description = ?, allow_view_all = ?, allow_manage_projects = ?, allow_manage_tasks = ?, allow_manage_tickets = ?, allow_manage_users = ?, allow_manage_configuration = ?, allow_manage_tasks_viewonly = ?, allow_manage_discussions = ?, allow_manage_discussion_viewonly = ? WHERE id = ?)';

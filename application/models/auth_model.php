@@ -424,7 +424,7 @@ class Auth_model extends CI_Model
 
 			if ($query->num_rows() !== 1)
 			{
-				$this->set_error('activate_unsuccessful');
+				$this->set_error('Unable to Activate Account');
 				return FALSE;
 			}
 
@@ -448,11 +448,11 @@ class Auth_model extends CI_Model
 		$return = $this->db->affected_rows() == 1;
 		if ($return)
 		{
-			$this->set_message('activate_successful');
+			$this->set_message('Account Activated');
 		}
 		else
 		{
-			$this->set_error('activate_unsuccessful');
+			$this->set_error('Unable to Activate Account');
 		}
 
 		return $return;
@@ -469,7 +469,7 @@ class Auth_model extends CI_Model
 	{
 		if (!isset($id))
 		{
-			$this->set_error('deactivate_unsuccessful');
+			$this->set_error('Unable to De-Activate Account');
 			return FALSE;
 		}
 
@@ -485,9 +485,9 @@ class Auth_model extends CI_Model
 
 		$return = $this->db->affected_rows() == 1;
 		if ($return)
-			$this->set_message('deactivate_successful');
+			$this->set_message('Account De-Activated');
 		else
-			$this->set_error('deactivate_unsuccessful');
+			$this->set_error('Unable to De-Activate Account');
 
 		return $return;
 	}
@@ -532,7 +532,7 @@ class Auth_model extends CI_Model
 		if ($query->num_rows() !== 1)
 		{
 			//$this->trigger_events(array('post_change_password', 'post_change_password_unsuccessful'));
-			$this->set_error('password_change_unsuccessful');
+			$this->set_error('Unable to Change Password');
 			return FALSE;
 		}
 
@@ -548,12 +548,12 @@ class Auth_model extends CI_Model
 		if ($return)
 		{
 			//$this->trigger_events(array('post_change_password', 'post_change_password_successful'));
-			$this->set_message('password_change_successful');
+			$this->set_message('Password Successfully Changed');
 		}
 		else
 		{
 			//$this->trigger_events(array('post_change_password', 'post_change_password_unsuccessful'));
-			$this->set_error('password_change_unsuccessful');
+			$this->set_error('Unable to Change Password');
 		}
 
 		return $return;
@@ -570,8 +570,7 @@ class Auth_model extends CI_Model
 		$query = $this->db->query($this->sql['get_id_pass_salt'], array($identity));
 		if ($query->num_rows() !== 1)
 		{
-			$this->trigger_events(array('post_change_password', 'post_change_password_unsuccessful'));
-			$this->set_error('password_change_unsuccessful');
+			$this->set_error('Unable to Change Password');
 			return FALSE;
 		}
 
@@ -585,17 +584,17 @@ class Auth_model extends CI_Model
 			$successfully_changed_password_in_db = $this->db->query($this->sql['reset_pass_update'], array($hashed_new_password, $identity));
 			if ($successfully_changed_password_in_db)
 			{
-				$this->set_message('password_change_successful');
+				$this->set_message('Password Successfully Changed');
 			}
 			else
 			{
-				$this->set_error('password_change_unsuccessful');
+				$this->set_error('Unable to Change Password');
 			}
 
 			return $successfully_changed_password_in_db;
 		}
 
-		$this->set_error('password_change_unsuccessful');
+		$this->set_error('Unable to Change Password');
 		return FALSE;
 	}
 
@@ -729,12 +728,12 @@ class Auth_model extends CI_Model
 
 		if ($this->email_check($email))
 		{
-			$this->set_error('account_creation_duplicate_identity');
+			$this->set_error('Identity Already Used or Invalid');
 			return FALSE;
 		}
 		elseif ( !$this->config->item('default_group', 'auth') && empty($groups) )
 		{
-			$this->set_error('account_creation_missing_default_group');
+			$this->set_error('Default group is not set');
 			return FALSE;
 		}
 
@@ -742,7 +741,7 @@ class Auth_model extends CI_Model
 		$query = $this->db->query($this->sql['get_default_group_status'], array($this->config->item('default_group', 'auth')))->row();
 		if( !isset($query->id) && empty($groups) )
 		{
-			$this->set_error('account_creation_invalid_default_group');
+			$this->set_error('Invalid default group name set');
 			return FALSE;
 		}
 
@@ -776,8 +775,6 @@ class Auth_model extends CI_Model
 			}
 		}
 
-		$this->trigger_events('post_register');
-
 		return (isset($id)) ? $id : FALSE;
 	}
 
@@ -793,42 +790,32 @@ class Auth_model extends CI_Model
 
 		if (empty($identity) || empty($password))
 		{
-			$this->set_error('login_unsuccessful');
+			$this->set_error('Incorrect Login');
 			return FALSE;
 		}
 
 		$this->trigger_events('extra_where');
 
-		$query = $this->db->select($this->identity_column . ', email, id, password, active, last_login')
-		                  ->where($this->identity_column, $identity)
-		                  ->limit(1)
-		    			  ->order_by('id', 'desc')
-		                  ->get($this->tables['users']);
+		$query = $this->db->query($this->sql['get_user_by_email'], array($identity));
 
 		if($this->is_time_locked_out($identity))
 		{
 			// Hash something anyway, just to take up time
 			$this->hash_password($password);
-
-			$this->trigger_events('post_login_unsuccessful');
-			$this->set_error('login_timeout');
-
+			$this->set_error('Temporarily Locked Out.  Try again later.');
 			return FALSE;
 		}
 
 		if ($query->num_rows() === 1)
 		{
 			$user = $query->row();
-
 			$password = $this->hash_password_db($user->id, $password);
 
 			if ($password === TRUE)
 			{
 				if ($user->active == 0)
 				{
-					$this->trigger_events('post_login_unsuccessful');
-					$this->set_error('login_unsuccessful_not_active');
-
+					$this->set_error('Account is inactive');
 					return FALSE;
 				}
 
@@ -908,7 +895,7 @@ class Auth_model extends CI_Model
 	 */
 	public function is_time_locked_out($identity) {
 
-		return $this->is_max_login_attempts_exceeded($identity) && $this->get_last_attempt_time($identity) > time() - $this->config->item('lockout_time', 'ion_auth');
+		return $this->is_max_login_attempts_exceeded($identity) && $this->get_last_attempt_time($identity) > time() - $this->config->item('lockout_time', 'auth');
 	}
 
 	/**
@@ -955,7 +942,7 @@ class Auth_model extends CI_Model
 	 * @param string $identity
 	 **/
 	public function clear_login_attempts($identity, $expire_period = 86400) {
-		if ($this->config->item('track_login_attempts', 'ion_auth')) {
+		if ($this->config->item('track_login_attempts', 'auth')) {
 			$ip_address = $this->_prepare_ip($this->input->ip_address());
 
 			$this->db->where(array('ip_address' => $ip_address, 'login' => $identity));
@@ -1432,14 +1419,9 @@ class Auth_model extends CI_Model
 	 **/
 	public function update_last_login($id)
 	{
-		$this->trigger_events('update_last_login');
-
 		$this->load->helper('date');
 
-		$this->trigger_events('extra_where');
-
-		$this->db->update($this->tables['users'], array('last_login' => time()), array('id' => $id));
-
+		$this->db->query($this->sql['update_user_lastlogin'], array(time(), $id));
 		return $this->db->affected_rows() == 1;
 	}
 
@@ -1482,20 +1464,14 @@ class Auth_model extends CI_Model
 	public function set_session($user)
 	{
 
-		$this->trigger_events('pre_set_session');
-
 		$session_data = array(
-		    'identity'             => $user->{$this->identity_column},
-		    $this->identity_column             => $user->{$this->identity_column},
+		    'identity'             => $user->email,
 		    'email'                => $user->email,
 		    'user_id'              => $user->id, //everyone likes to overwrite id so we'll use user_id
 		    'old_last_login'       => $user->last_login
 		);
 
 		$this->session->set_userdata($session_data);
-
-		$this->trigger_events('post_set_session');
-
 		return TRUE;
 	}
 
@@ -1507,49 +1483,43 @@ class Auth_model extends CI_Model
 	 **/
 	public function remember_user($id)
 	{
-		$this->trigger_events('pre_remember_user');
-
 		if (!$id)
 		{
 			return FALSE;
 		}
 
-		$user = $this->user($id)->row();
+		$user = $this->db->query($this->sql['get_user_by_id'], array($id))->row();
 
 		$salt = $this->salt();
 
-		$this->db->update($this->tables['users'], array('remember_code' => $salt), array('id' => $id));
+		$this->db->query($this->sql['update_remember_code'], array($salt, $id));
 
 		if ($this->db->affected_rows() > -1)
 		{
 			// if the user_expire is set to zero we'll set the expiration two years from now.
-			if($this->config->item('user_expire', 'ion_auth') === 0)
+			if($this->config->item('user_expire', 'auth') === 0)
 			{
 				$expire = (60*60*24*365*2);
 			}
 			// otherwise use what is set
 			else
 			{
-				$expire = $this->config->item('user_expire', 'ion_auth');
+				$expire = $this->config->item('user_expire', 'auth');
 			}
 
 			set_cookie(array(
-			    'name'   => $this->config->item('identity_cookie_name', 'ion_auth'),
-			    'value'  => $user->{$this->identity_column},
+			    'name'   => $this->config->item('identity_cookie_name', 'auth'),
+			    'value'  => $user->email,
 			    'expire' => $expire
 			));
 
 			set_cookie(array(
-			    'name'   => $this->config->item('remember_cookie_name', 'ion_auth'),
+			    'name'   => $this->config->item('remember_cookie_name', 'auth'),
 			    'value'  => $salt,
 			    'expire' => $expire
 			));
-
-			$this->trigger_events(array('post_remember_user', 'remember_user_successful'));
 			return TRUE;
 		}
-
-		$this->trigger_events(array('post_remember_user', 'remember_user_unsuccessful'));
 		return FALSE;
 	}
 
