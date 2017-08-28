@@ -12,9 +12,11 @@ $config['get_forgotten_pass_time']			= 'SELECT forgotten_password_time FROM user
 $config['get_default_group_status']			= 'SELECT * FROM users_groups WHERE name = ?';
 $config['get_group_by_gid']					= 'SELECT * FROM groups WHERE id = ?';
 $config['get_group_by_name']				= 'SELECT * FROM groups WHERE name = ?';
-$config['get_user_by_id']					= 'SELECT * FROM users';
+$config['get_user_by_id']					= 'SELECT * FROM users WHERE id =?';
 $config['get_user_by_remember_code']		= 'SELECT id, email, last_login FROM users WHERE email = ? and remember_code = ? ORDER BY id DESC LIMIT 1';
 $config['get_user_by_email']				= 'SELECT email, id, password, active, last_login FROM users WHERE email = ? ORDER BY id DESC LIMIT 1';
+$config['count_atempt_by_ip']				= 'SELECT 1 FROM login_attempts WHERE ip_address = ? AND login = ?';
+$config['count_atempt_by_email']			= 'SELECT 1 FROM login_attempts WHERE login = ?';
 
 
 /*::: UPDATE :::*/
@@ -33,13 +35,14 @@ $config['update_group']						= 'UPDATE groups SET name = ?, description = ?, all
 $config['register_new_user']				= 'INSERT INTO users (email,name,phone,photo,password,salt,ip_address,created_on,active) VALUES (?,?,?,?,?,?,?,?,?)';
 $config['add_to_group']						= 'INSERT INTO users_groups (user_id, group_id) VALUES (?,?)';
 $config['create_new_group']					= 'INSERT INTO groups (name, description, allow_view_all, allow_manage_projects, allow_manage_tasks, allow_manage_tickets, allow_manage_users, allow_manage_configuration, allow_manage_tasks_viewonly, allow_manage_discussions, allow_manage_discussion_viewonly) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
-
+$config['increase_login_attempts']			= 'INSERT INTO login_attempts (ip_address, login, time) VALUES (?,?,?)';
 
 /*::: DELETE :::*/
 $config['delete_user_from_group']			= 'DELETE FROM users_groups WHERE user_id = ? AND group_id = ?';
 $config['delete_all_group_frm_user']		= 'DELETE FROM users_groups WHERE user_id = ?';
 $config['delete_all_user_frm_group']		= 'DELETE FROM users_groups WHERE group_id = ?';
 $config['delete_group_by_gid']				= 'DELETE FROM groups WHERE id = ?';
+$config['delete_login_attempt']				= 'DELETE FROM groups WHERE ip_address = ? AND login = ? OR time < ?';
 
 
 

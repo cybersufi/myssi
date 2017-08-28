@@ -825,13 +825,12 @@ class Auth_model extends CI_Model
 
 				$this->clear_login_attempts($identity);
 
-				if ($remember && $this->config->item('remember_users', 'ion_auth'))
+				if ($remember && $this->config->item('remember_users', 'auth'))
 				{
 					$this->remember_user($user->id);
 				}
 
-				$this->trigger_events(array('post_login', 'post_login_successful'));
-				$this->set_message('login_successful');
+				$this->set_message('Logged In Successfully');
 
 				return TRUE;
 			}
@@ -839,12 +838,8 @@ class Auth_model extends CI_Model
 
 		// Hash something anyway, just to take up time
 		$this->hash_password($password);
-
 		$this->increase_login_attempts($identity);
-
-		$this->trigger_events('post_login_unsuccessful');
-		$this->set_error('login_unsuccessful');
-
+		$this->set_error('Incorrect Login');
 		return FALSE;
 	}
 
@@ -856,8 +851,8 @@ class Auth_model extends CI_Model
 	 * @return boolean
 	 **/
 	public function is_max_login_attempts_exceeded($identity) {
-		if ($this->config->item('track_login_attempts', 'ion_auth')) {
-			$max_attempts = $this->config->item('maximum_login_attempts', 'ion_auth');
+		if ($this->config->item('track_login_attempts', 'auth')) {
+			$max_attempts = $this->config->item('maximum_login_attempts', 'auth');
 			if ($max_attempts > 0) {
 				$attempts = $this->get_attempts_num($identity);
 				return $attempts >= $max_attempts;
@@ -875,14 +870,18 @@ class Auth_model extends CI_Model
 	 */
 	function get_attempts_num($identity)
 	{
-        if ($this->config->item('track_login_attempts', 'ion_auth')) {
+        if ($this->config->item('track_login_attempts', 'auth')) {
             $ip_address = $this->_prepare_ip($this->input->ip_address());
             $this->db->select('1', FALSE);
-            if ($this->config->item('track_login_ip_address', 'ion_auth')) {
-            	$this->db->where('ip_address', $ip_address);
-            	$this->db->where('login', $identity);
-            } else if (strlen($identity) > 0) $this->db->or_where('login', $identity);
-            $qres = $this->db->get($this->tables['login_attempts']);
+            if ($this->config->item('track_login_ip_address', 'auth')) {
+            	$this->db->query($this->sql['count_atempt_by_ip'], array($ip_address, $identity));
+            } 
+            else if (strlen($identity) > 0) 
+            {
+            	$this->db->query($this->sql['count_atempt_by_ip'], array($identity));
+			}
+
+            $qres = $this->db->get();
             return $qres->num_rows();
         }
         return 0;
@@ -905,11 +904,11 @@ class Auth_model extends CI_Model
 	 * @return	int
 	 */
 	public function get_last_attempt_time($identity) {
-		if ($this->config->item('track_login_attempts', 'ion_auth')) {
+		if ($this->config->item('track_login_attempts', 'auth')) {
 			$ip_address = $this->_prepare_ip($this->input->ip_address());
 
 			$this->db->select_max('time');
-            if ($this->config->item('track_login_ip_address', 'ion_auth')) $this->db->where('ip_address', $ip_address);
+            if ($this->config->item('track_login_ip_address', 'auth')) $this->db->where('ip_address', $ip_address);
 			else if (strlen($identity) > 0) $this->db->or_where('login', $identity);
 			$qres = $this->db->get($this->tables['login_attempts'], 1);
 
@@ -928,9 +927,9 @@ class Auth_model extends CI_Model
 	 * @param string $identity
 	 **/
 	public function increase_login_attempts($identity) {
-		if ($this->config->item('track_login_attempts', 'ion_auth')) {
+		if ($this->config->item('track_login_attempts', 'auth')) {
 			$ip_address = $this->_prepare_ip($this->input->ip_address());
-			return $this->db->insert($this->tables['login_attempts'], array('ip_address' => $ip_address, 'login' => $identity, 'time' => time()));
+			return $this->db->query($this->sql['increase_login_attempts'], array($ip_address, $identity, time()));
 		}
 		return FALSE;
 	}
@@ -944,12 +943,7 @@ class Auth_model extends CI_Model
 	public function clear_login_attempts($identity, $expire_period = 86400) {
 		if ($this->config->item('track_login_attempts', 'auth')) {
 			$ip_address = $this->_prepare_ip($this->input->ip_address());
-
-			$this->db->where(array('ip_address' => $ip_address, 'login' => $identity));
-			// Purge obsolete login attempts
-			$this->db->or_where('time <', time() - $expire_period, FALSE);
-
-			return $this->db->delete($this->tables['login_attempts']);
+			return $this->db->query($this->sql['delete_login_attempt'], array($ip_address, $identity, (time() - $expire_period)));
 		}
 		return FALSE;
 	}
