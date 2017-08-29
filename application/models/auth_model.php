@@ -147,12 +147,12 @@ class Auth_model extends CI_Model
 		parent::__construct();
 		$this->load->database();
 		$this->load->config('auth', TRUE);
-		$this->load->config('auth_query', TRUE);
+		$this->load->config('dbquery/auth_query', TRUE);
 		$this->load->helper('cookie');
 		$this->load->helper('date');
 		//$this->lang->load('ion_auth');
 
-		$this->sql = $this->config->item('auth_query');
+		$this->sql = $this->config->item('dbquery/auth_query');
 
 		// initialize db tables data
 		//$this->tables  = $this->config->item('tables', 'ion_auth');
@@ -752,7 +752,7 @@ class Auth_model extends CI_Model
 		$ip_address = $this->_prepare_ip($this->input->ip_address());
 		$salt       = $this->store_salt ? $this->salt() : FALSE;
 		$password   = $this->hash_password($password, $salt);
-		$active = if ($manual_activation) ? 0 : 1;
+		$active 	= ($manual_activation) ? 0 : 1;
 
 		//(email,name,phone,photo,password,salt,ip_address,created_on,active)
 		$data = array($email, $name, $phone, $photo, $password, $salt, $ip_address, time(), $active);
@@ -786,15 +786,11 @@ class Auth_model extends CI_Model
 	 **/
 	public function login($identity, $password, $remember=FALSE)
 	{
-		$this->trigger_events('pre_login');
-
 		if (empty($identity) || empty($password))
 		{
 			$this->set_error('Incorrect Login');
 			return FALSE;
 		}
-
-		$this->trigger_events('extra_where');
 
 		$query = $this->db->query($this->sql['get_user_by_email'], array($identity));
 
@@ -1079,8 +1075,6 @@ class Auth_model extends CI_Model
 	 **/
 	public function user($id = NULL)
 	{
-		$this->trigger_events('user');
-
 		// if no id was passed use the current users id
 		$id || $id = $this->session->userdata('user_id');
 
@@ -1461,7 +1455,7 @@ class Auth_model extends CI_Model
 		}
 
 		// bail if the group name already exists
-		$existing_group = $this->db->query($this->sql['get_group_by_name'], array($group_name)->num_rows();
+		$existing_group = $this->db->query($this->sql['get_group_by_name'], array($group_name))->num_rows();
 		if($existing_group !== 0)
 		{
 			$this->set_error('Group name already taken');

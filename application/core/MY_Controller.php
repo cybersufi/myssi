@@ -14,7 +14,7 @@ class MY_Controller extends CI_Controller
                 $this->load->config('templates');       //config for templates.
                 $this->load->config('myssiapp', TRUE);           //our app related config.
                 $this->load->config('bsplugins',TRUE);       //config for bootstrap templates.
-                
+                $this->load->library(array('form_validation', 'auth', 'template'));
                 //$this->load->model('common/prefs_model');
 
                 $this->bsplugins = $this->config->item('bsplugins');

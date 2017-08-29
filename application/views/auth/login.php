@@ -8,11 +8,14 @@
   <!-- /.login-logo -->
   <div class="login-box-body">
     <p class="login-box-msg">Sign in :</p>
+    <?php if (isset($message)) { ?>
     <div class="alert alert-danger alert-dismissible">
       <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-      <b><i class="icon fa fa-ban"></i>Error!!</b> Danger alert preview.
+      <!--<b><i class="icon fa fa-ban"><?php echo "Error!!</b>".$message."."; ?>.-->
+      <?php echo $message; ?>
     </div>
-    <?php echo form_open('auth/login');?>
+    <?php } ?>
+    <?php echo form_open('authentication/login');?>
       <div class="form-group has-feedback">
         <?php echo form_input($identity);?>
         <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
