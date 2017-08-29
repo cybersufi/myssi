@@ -17,8 +17,8 @@ $config['get_user_by_remember_code']		= 'SELECT id, email, last_login FROM users
 $config['get_user_by_email']				= 'SELECT email, id, password, active, last_login FROM users WHERE email = ? ORDER BY id DESC LIMIT 1';
 $config['count_atempt_by_ip']				= 'SELECT 1 FROM login_attempts WHERE ip_address = ? AND login = ?';
 $config['count_atempt_by_email']			= 'SELECT 1 FROM login_attempts WHERE login = ?';
-$config['get_time_by_ip']					= 'SELECT MAX (time) FROM login_attempts WHERE ip_address = ? AND login = ?';
-$config['get_time_by_ip_email']				= 'SELECT MAX (time) FROM login_attempts WHERE login = ?';
+$config['get_time_by_ip_email']				= 'SELECT MAX (time) FROM login_attempts WHERE ip_address = ? AND login = ?';
+$config['get_time_by_email']				= 'SELECT MAX (time) FROM login_attempts WHERE login = ?';
 
 
 /*::: UPDATE :::*/
