@@ -908,15 +908,19 @@ class Auth_model extends CI_Model
 			$ip_address = $this->_prepare_ip($this->input->ip_address());
 
 			$this->db->select_max('time');
-            if ($this->config->item('track_login_ip_address', 'auth')) $this->db->where('ip_address', $ip_address);
-			else if (strlen($identity) > 0) $this->db->or_where('login', $identity);
-			$qres = $this->db->get($this->tables['login_attempts'], 1);
+            if ($this->config->item('track_login_ip_address', 'auth')) 
+            {
+            	$qres = $this->db->query($this->sql['get_time_by_ip_email'], array($ip_address, $identity));
+            }
+			else if (strlen($identity) > 0) 
+			{
+				$qres = $this->db->query($this->sql['get_time_by_email'], array($identity));
+			}
 
 			if($qres->num_rows() > 0) {
 				return $qres->row()->time;
 			}
 		}
-
 		return 0;
 	}
 
@@ -948,117 +952,6 @@ class Auth_model extends CI_Model
 		return FALSE;
 	}
 
-	public function limit($limit)
-	{
-		$this->trigger_events('limit');
-		$this->_ion_limit = $limit;
-
-		return $this;
-	}
-
-	public function offset($offset)
-	{
-		$this->trigger_events('offset');
-		$this->_ion_offset = $offset;
-
-		return $this;
-	}
-
-	public function where($where, $value = NULL)
-	{
-		$this->trigger_events('where');
-
-		if (!is_array($where))
-		{
-			$where = array($where => $value);
-		}
-
-		array_push($this->_ion_where, $where);
-
-		return $this;
-	}
-
-	public function like($like, $value = NULL, $position = 'both')
-	{
-		$this->trigger_events('like');
-
-		if (!is_array($like))
-		{
-			$like = array($like => array(
-				'value'    => $value,
-				'position' => $position,
-			));
-		}
-
-		array_push($this->_ion_like, $like);
-
-		return $this;
-	}
-
-	public function select($select)
-	{
-		$this->trigger_events('select');
-
-		$this->_ion_select[] = $select;
-
-		return $this;
-	}
-
-	public function order_by($by, $order='desc')
-	{
-		$this->trigger_events('order_by');
-
-		$this->_ion_order_by = $by;
-		$this->_ion_order    = $order;
-
-		return $this;
-	}
-
-	public function row()
-	{
-		$this->trigger_events('row');
-
-		$row = $this->response->row();
-
-		return $row;
-	}
-
-	public function row_array()
-	{
-		$this->trigger_events(array('row', 'row_array'));
-
-		$row = $this->response->row_array();
-
-		return $row;
-	}
-
-	public function result()
-	{
-		$this->trigger_events('result');
-
-		$result = $this->response->result();
-
-		return $result;
-	}
-
-	public function result_array()
-	{
-		$this->trigger_events(array('result', 'result_array'));
-
-		$result = $this->response->result_array();
-
-		return $result;
-	}
-
-	public function num_rows()
-	{
-		$this->trigger_events(array('num_rows'));
-
-		$result = $this->response->num_rows();
-
-		return $result;
-	}
-
 	/**
 	 * users
 	 *
@@ -1067,8 +960,6 @@ class Auth_model extends CI_Model
 	 **/
 	public function users($groups = NULL)
 	{
-		$this->trigger_events('users');
-
 		if (isset($this->_ion_select) && !empty($this->_ion_select))
 		{
 			foreach ($this->_ion_select as $select)
