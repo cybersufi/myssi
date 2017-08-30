@@ -115,7 +115,7 @@ class User_model extends CI_Model
 
 		$ugroups = $this->db->query($this->sql['get_user_gid'], array($userid));
 
-		if($suser->getAttribute('users_group_id')==0)
+		if(empty($ugroups->resutl()) )
 		{
 			return $schema;
 		}
