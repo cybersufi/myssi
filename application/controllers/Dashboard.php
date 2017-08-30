@@ -11,9 +11,9 @@ class Dashboard extends MY_Controller
 	
 	public function index()
 	{
-		if ( ! $this->ion_auth->logged_in() OR ! $this->ion_auth->is_admin())
+		if ( ! $this->auth->logged_in() )
         {
-            redirect('auth/login', 'refresh');
+            redirect('authentication/login', 'refresh');
         }
         else
         {

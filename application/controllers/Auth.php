@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Authentication extends MY_Controller 
+class Auth extends MY_Controller 
 {
 
 	public function __construct()
@@ -13,10 +13,9 @@ class Authentication extends MY_Controller
 	
 	public function index()
 	{
-		//$this->load->view('welcome_message');
-        if ( ! $this->auth->logged_in())
+		if ( ! $this->auth_lib->logged_in())
         {
-            redirect('authentication/login', 'refresh');
+            redirect('auth/login', 'refresh');
         }
         else
         {
@@ -26,7 +25,7 @@ class Authentication extends MY_Controller
 
 	public function login()
 	{
-        if ( ! $this->auth->logged_in())
+        if ( ! $this->auth_lib->logged_in())
         {
     		/* set necessity files */
     		$this->set_pagename('auth');
@@ -42,15 +41,15 @@ class Authentication extends MY_Controller
             {
                 $remember = (bool) $this->input->post('remember');
 
-                if ($this->auth->login($this->input->post('identity'), $this->input->post('password'), $remember))
+                if ($this->auth_lib->login($this->input->post('identity'), $this->input->post('password'), $remember))
                 {
-                    $this->session->set_flashdata('message', $this->auth->messages());
+                    $this->session->set_flashdata('message', $this->auth_lib->messages());
                     redirect('/', 'refresh');
                 }
                 else
                 {
-                    $this->session->set_flashdata('message', $this->auth->errors());
-    			    redirect('authentication/login', 'refresh');
+                    $this->session->set_flashdata('message', $this->auth_lib->errors());
+    			    redirect('auth/login', 'refresh');
                 }
             }
             else
@@ -82,8 +81,8 @@ class Authentication extends MY_Controller
 
     public function logout($src = NULL)
     {
-        $logout = $this->auth->logout();
-        $this->session->set_flashdata('message', $this->auth->messages());
+        $logout = $this->auth_lib->logout();
+        $this->session->set_flashdata('message', $this->auth_lib->messages());
         redirect('/', 'refresh');
     }
 

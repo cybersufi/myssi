@@ -1,5 +1,5 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
-class Auth
+class Auth_lib
 {
 	/**
 	 * account status ('not_activated', etc ...)

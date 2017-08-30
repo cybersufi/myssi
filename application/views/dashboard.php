@@ -1,6 +1,6 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
 
-<body class="hold-transition login-page">
+<body class="hold-transition <?php echo $skin; ?> sidebar-mini">
 <div class="login-box">
   <div class="login-logo">
     <a href="<?php echo site_url() ?>"><b>My</b>SSI</a>
