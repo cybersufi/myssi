@@ -80,4 +80,11 @@ class Authentication extends MY_Controller
         }
     }
 
+    public function logout($src = NULL)
+    {
+        $logout = $this->auth->logout();
+        $this->session->set_flashdata('message', $this->auth->messages());
+        redirect('/', 'refresh');
+    }
+
 }
