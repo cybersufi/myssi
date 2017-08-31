@@ -115,9 +115,13 @@ class User_model extends CI_Model
 
 		$ugroups = $this->db->query($this->sql['get_user_gid'], array($userid));
 
-		if(empty($ugroups->resutl()) )
+		if(empty($ugroups->result()) )
 		{
 			return $schema;
+		}
+
+		foreach ($ugroups as $group) {
+
 		}
 
 		$user = $sf_user->getAttribute('user');
@@ -125,30 +129,30 @@ class User_model extends CI_Model
 
 		switch($module)
 		{
-		case 'projects':          
-		$access = $usersGroups->getAllowManageProjects();           
-		break;
-		case 'tasks':          
-		$access = $usersGroups->getAllowManageTasks();           
-		break;
-		case 'tickets':          
-		$access = $usersGroups->getAllowManageTickets();           
-		break;
-		case 'discussions':          
-		$access = $usersGroups->getAllowManageDiscussions();           
-		break;
-		case 'projectsComments':
-		$access = $usersGroups->getAllowManageProjects();
-		break;
-		case 'tasksComments':
-		$access = $usersGroups->getAllowManageTasks();
-		break;
-		case 'ticketsComments':
-		$access = $usersGroups->getAllowManageTickets();
-		break;
-		case 'discussionsComments':
-		$access = $usersGroups->getAllowManageDiscussions();
-		break;  
+			case 'projects':          
+			$access = $usersGroups->getAllowManageProjects();           
+			break;
+			case 'tasks':          
+			$access = $usersGroups->getAllowManageTasks();           
+			break;
+			case 'tickets':          
+			$access = $usersGroups->getAllowManageTickets();           
+			break;
+			case 'discussions':          
+			$access = $usersGroups->getAllowManageDiscussions();           
+			break;
+			case 'projectsComments':
+			$access = $usersGroups->getAllowManageProjects();
+			break;
+			case 'tasksComments':
+			$access = $usersGroups->getAllowManageTasks();
+			break;
+			case 'ticketsComments':
+			$access = $usersGroups->getAllowManageTickets();
+			break;
+			case 'discussionsComments':
+			$access = $usersGroups->getAllowManageDiscussions();
+			break;  
 		}
 
 		if(strstr($module,'Comments'))

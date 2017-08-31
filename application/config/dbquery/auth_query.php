@@ -19,6 +19,7 @@ $config['count_atempt_by_ip']				= 'SELECT 1 FROM login_attempts WHERE ip_addres
 $config['count_atempt_by_email']			= 'SELECT 1 FROM login_attempts WHERE login = ?';
 $config['get_time_by_ip_email']				= 'SELECT MAX (time) FROM login_attempts WHERE ip_address = ? AND login = ?';
 $config['get_time_by_email']				= 'SELECT MAX (time) FROM login_attempts WHERE login = ?';
+$config['get_user_priv'] 					= 'SELECT * FROM users_groups WHERE users_groups.user_id = ? INNER JOIN groups ON user_groups.group_id = groups.id';
 
 
 /*::: UPDATE :::*/
@@ -30,13 +31,13 @@ $config['change_pass_rcode']				= 'UPDATE users SET password = ?, remember_code 
 $config['update_remember_code']				= 'UPDATE users SET remember_code = ? WHERE id = ?';
 $config['set_forgotten_password_code']		= 'UPDATE users SET forgotten_password_code = ?, forgotten_password_time = ? WHERE email = ?';
 $config['set_forgotten_password']			= 'UPDATE users SET password = ?, forgotten_password_code = NULL, active = 1 WHERE forgotten_password_code = ?';
-$config['update_group']						= 'UPDATE groups SET name = ?, description = ?, allow_view_all = ?, allow_manage_projects = ?, allow_manage_tasks = ?, allow_manage_tickets = ?, allow_manage_users = ?, allow_manage_configuration = ?, allow_manage_tasks_viewonly = ?, allow_manage_discussions = ?, allow_manage_discussion_viewonly = ? WHERE id = ?)';
+$config['update_group']						= 'UPDATE groups SET name = ?, description = ?, config_priv = ?, projects_priv = ?, tasks_priv = ?, tickets_priv = ?, users_priv = ?, discussions_priv = ? WHERE id = ?)';
 
 
 /*::: INSERT :::*/
 $config['register_new_user']				= 'INSERT INTO users (email,name,phone,photo,password,salt,ip_address,created_on,active) VALUES (?,?,?,?,?,?,?,?,?)';
 $config['add_to_group']						= 'INSERT INTO users_groups (user_id, group_id) VALUES (?,?)';
-$config['create_new_group']					= 'INSERT INTO groups (name, description, allow_view_all, allow_manage_projects, allow_manage_tasks, allow_manage_tickets, allow_manage_users, allow_manage_configuration, allow_manage_tasks_viewonly, allow_manage_discussions, allow_manage_discussion_viewonly) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+$config['create_new_group']					= 'INSERT INTO groups (name, description, config_priv, projects_priv, tasks_priv, tickets_priv, users_priv, discussions_priv) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
 $config['increase_login_attempts']			= 'INSERT INTO login_attempts (ip_address, login, time) VALUES (?,?,?)';
 
 /*::: DELETE :::*/

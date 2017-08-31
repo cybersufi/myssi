@@ -1745,6 +1745,192 @@ class Auth_model extends CI_Model
 		// just return the string IP address now for better compatibility
 		return $ip_address;
 	}
+
+	public function getAccessSchema($module, $userid ,$projects_id=false)
+	{
+		$access = array();
+		$custom_access = array();
+
+		$schema = array('view'      =>false,
+						'view_own'  =>false,                    
+						'insert'    =>false,
+						'edit'      =>false,
+						'delete'    =>false);
+
+		$ugroups = $this->db->query($this->sql['get_user_priv'], array($userid));
+
+		if(empty($ugroups->result()) )
+		{
+			return $schema;
+		}
+
+		$access = 0;
+
+		foreach ($ugroups as $group) 
+		{
+			switch($module)
+			{
+				case 'projects':
+					$access = ($group->projects_priv > $access) ? $group->projects_priv : $access;
+				break;
+				case 'tasks':          
+					$access = ($group->tasks_priv > $access) ? $group->tasks_priv : $access;           
+				break;
+				case 'tickets':          
+					$access = ($group->tickets_priv > $access) ? $group->tickets_priv : $access;           
+				break;
+				case 'discussions':          
+					$access = ($group->discussions_priv > $access) ? $group->discussions_priv : $access;           
+				break;
+				case 'config':
+					$access = ($group->config_priv > $access) ? $group->config_priv : $access;
+				break;
+				case 'users':
+					$access = ($group->users_priv > $access) ? $group->users_priv : $access;
+				break;
+			}
+		}	
+
+		if(strstr($module,'Comments'))
+		{      
+			if($access>0)
+			{
+				$schema = array('view'      =>true,
+				'view_own'  =>true,                            
+				'insert'    =>true,
+				'edit'      =>true,
+				'delete'    =>true);
+			}
+		}
+		else
+		{
+			switch($access)
+			{    
+				//full access
+				case '1':     
+				$schema = array('view'      =>true,
+				'view_own'  =>false,                            
+				'insert'    =>true,
+				'edit'      =>true,
+				'delete'    =>true);
+				break;     
+				//view only             
+				case '2':     
+				$schema = array('view'      =>true,
+				'view_own'  =>false,                            
+				'insert'    =>false,
+				'edit'      =>false,
+				'delete'    =>false);
+				break;   
+				//view own only       
+				case '3':     
+				$schema = array('view'      =>true,
+				'view_own'  =>true,                            
+				'insert'    =>false,
+				'edit'      =>false,
+				'delete'    =>false);
+				break;
+				//manage_own_lnly  
+				case '4':     
+				$schema = array('view'      =>true,
+				'view_own'  =>true,                            
+				'insert'    =>true,
+				'edit'      =>true,
+				'delete'    =>true);
+				break;
+			}   
+		}
+		return $schema;
+	}
+
+	public function hasAccess($access,$module,$user_id,$projects_id=false)
+	{
+		$schema = $this->getAccessSchema($module,$user_id,$projects_id);
+		      
+		if(strstr($access,'|'))
+		{
+			foreach(explode('|',$access) as $a)
+			{
+				if($schema[$a])
+				{
+					return true;
+				}
+			}
+		}
+		elseif($schema[$access])
+		{
+			return true;
+		}
+		return false;    
+	}
+
+	public function checkAccess($c,$access,$module,$user_id,$projects_id=false)
+	{
+		return $this->hasAccess($access,$module,$user_id,$projects_id);
+	}
+
+	public function hasProjectsAccess($access, $user_id, $project_id)
+	{
+		$this->load->model('projects_model');
+		if($this->hasAccess($access,'projects',$user_id,$project_id) and $this->projects_model->hasViewOwnAccess($user_id, $project_id))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	public static function hasTasksAccess($access, $user_id, $tasks_id, $project_id=false)
+	{
+		if($this->hasAccess($access,'tasks',$user_id,$project_id) and $this->task_model->hasViewOwnAccess($user_id,$task_id,$project_id))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	public static function hasTicketsAccess($access, $sf_user, $tasks, $projects=null)
+	{
+	if($projects)
+	{
+	if(Users::hasAccess($access,'tickets',$sf_user,$projects->getId()) and Tickets::hasViewOwnAccess($sf_user,$tasks,$projects))
+	{
+	return true;
+	}
+	else
+	{
+	return false;
+	}
+	}
+	else
+	{
+	if(Users::hasAccess($access,'tickets',$sf_user) and Tickets::hasViewOwnAccess($sf_user,$tasks))
+	{
+	return true;
+	}
+	else
+	{
+	return false;
+	}
+	}
+	}
+
+	public static function hasDiscussionsAccess($access, $sf_user, $discussions, $projects)
+	{
+	if(Users::hasAccess($access,'discussions',$sf_user,$projects->getId()) and Discussions::hasViewOwnAccess($sf_user,$discussions,$projects))
+	{
+	return true;
+	}
+	else
+	{
+	return false;
+	}
+	}
 }
 
 ?>
