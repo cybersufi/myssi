@@ -257,32 +257,30 @@ class Auth_lib
 	 * @return void
 	 * @author Mathew
 	 **/
-	public function register($identity, $password, $email, $additional_data = array(), $group_ids = array()) //need to test email activation
+	public function register($email, $name, $password, $phone, $photo, $group_ids = array()) //need to test email activation
 	{
 		//$this->auth_model->trigger_events('pre_account_creation');
 
 		$email_activation = $this->config->item('email_activation', 'auth');
 
-		$id = $this->auth_model->register($identity, $password, $email, $additional_data, $group_ids);
+		$id = $this->auth_model->register($email, $name, $password, $phone, $photo, $group_ids);
 
 		if (!$email_activation)
 		{
 			if ($id !== FALSE)
 			{
-				$this->set_message('account_creation_successful');
-				//$this->auth_model->trigger_events(array('post_account_creation', 'post_account_creation_successful'));
+				$this->set_message('Account Successfully Created');
 				return $id;
 			}
 			else
 			{
-				$this->set_error('account_creation_unsuccessful');
-				//$this->auth_model->trigger_events(array('post_account_creation', 'post_account_creation_unsuccessful'));
+				$this->set_error('Unable to Create Account');
 				return FALSE;
 			}
 		}
 		else
 		{
-			if (!$id)
+			/*if (!$id)
 			{
 				$this->set_error('account_creation_unsuccessful');
 				return FALSE;
@@ -339,6 +337,7 @@ class Auth_lib
 
 			//$this->auth_model->trigger_events(array('post_account_creation', 'post_account_creation_unsuccessful', 'activation_email_unsuccessful'));
 			$this->set_error('activation_email_unsuccessful');
+			return FALSE;*/
 			return FALSE;
 		}
 	}

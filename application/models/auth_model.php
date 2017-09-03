@@ -445,7 +445,7 @@ class Auth_model extends CI_Model
 			$this->db->query($this->sql['update_activation'], array(NULL, 1, $id));
 		}
 
-		$return = $this->db->affected_rows() == 1;
+		$return = $this->db->num_rows() == 1;
 		if ($return)
 		{
 			$this->set_message('Account Activated');
@@ -483,7 +483,7 @@ class Auth_model extends CI_Model
 
 		$this->db->query($this->sql['update_activation'], array($activation_code, 0, $id));
 
-		$return = $this->db->affected_rows() == 1;
+		$return = $this->db->num_rows() == 1;
 		if ($return)
 			$this->set_message('Account De-Activated');
 		else
@@ -501,7 +501,7 @@ class Auth_model extends CI_Model
 
 		$this->db->query($this->sql['get_by_forgotten_password_code'], array($code));
 		
-		if ($this->db->count_all_results() > 0)
+		if ($this->db->num_rows() > 0)
 		{
 			$data = array(
 			    'forgotten_password_code' => NULL,
@@ -544,7 +544,7 @@ class Auth_model extends CI_Model
 		// also clear the forgotten password code
 		$this->db->query($this->sql['reset_pass_update'], array($new, $identity));
 
-		$return = $this->db->affected_rows() == 1;
+		$return = $this->db->num_rows() == 1;
 		if ($return)
 		{
 			//$this->trigger_events(array('post_change_password', 'post_change_password_successful'));
@@ -614,7 +614,7 @@ class Auth_model extends CI_Model
 		}
 
 		$query = $this->db->query($this->sql['get_username'], array($username));
-		return $query->count_all_results() > 0;
+		return $query->num_rows() > 0;
 	}
 
 	/**
@@ -631,7 +631,7 @@ class Auth_model extends CI_Model
 		}
 
 		$query = $this->db->query($this->sql['get_email'], array($email));
-		return $query->count_all_results() > 0;
+		return $query->num_rows() > 0;
 	}
 
 	/**
@@ -675,7 +675,7 @@ class Auth_model extends CI_Model
 		$this->forgotten_password_code = $key;
 		$this->db->query($this->sql['set_forgotten_password_code'], array($key, time(), $identity));
 
-		$return = $this->db->affected_rows() == 1;
+		$return = $this->db->num_rows() == 1;
 		return $return;
 	}
 
@@ -1270,7 +1270,7 @@ class Auth_model extends CI_Model
 		$this->db->delete($this->tables['users'], array('id' => $id));
 
 		// if user does not exist in database then it returns FALSE else removes the user from groups
-		if ($this->db->affected_rows() == 0)
+		if ($this->db->num_rows() == 0)
 		{
 		    return FALSE;
 		}
@@ -1301,7 +1301,7 @@ class Auth_model extends CI_Model
 		$this->load->helper('date');
 
 		$this->db->query($this->sql['update_user_lastlogin'], array(time(), $id));
-		return $this->db->affected_rows() == 1;
+		return $this->db->num_rows() == 1;
 	}
 
 	/**
@@ -1373,7 +1373,7 @@ class Auth_model extends CI_Model
 
 		$this->db->query($this->sql['update_remember_code'], array($salt, $id));
 
-		if ($this->db->affected_rows() > -1)
+		if ($this->db->num_rows() > -1)
 		{
 			// if the user_expire is set to zero we'll set the expiration two years from now.
 			if($this->config->item('user_expire', 'auth') === 0)
@@ -1884,6 +1884,7 @@ class Auth_model extends CI_Model
 
 	public static function hasTasksAccess($access, $user_id, $tasks_id, $project_id=false)
 	{
+		$this->load->model('tasks_model');
 		if($this->hasAccess($access,'tasks',$user_id,$project_id) and $this->task_model->hasViewOwnAccess($user_id,$task_id,$project_id))
 		{
 			return true;
@@ -1894,42 +1895,31 @@ class Auth_model extends CI_Model
 		}
 	}
 
-	public static function hasTicketsAccess($access, $sf_user, $tasks, $projects=null)
+	public static function hasTicketsAccess($access, $user_id, $ticket_id, $project_id=null)
 	{
-	if($projects)
-	{
-	if(Users::hasAccess($access,'tickets',$sf_user,$projects->getId()) and Tickets::hasViewOwnAccess($sf_user,$tasks,$projects))
-	{
-	return true;
-	}
-	else
-	{
-	return false;
-	}
-	}
-	else
-	{
-	if(Users::hasAccess($access,'tickets',$sf_user) and Tickets::hasViewOwnAccess($sf_user,$tasks))
-	{
-	return true;
-	}
-	else
-	{
-	return false;
-	}
-	}
-	}
-
-	public static function hasDiscussionsAccess($access, $sf_user, $discussions, $projects)
-	{
-	if(Users::hasAccess($access,'discussions',$sf_user,$projects->getId()) and Discussions::hasViewOwnAccess($sf_user,$discussions,$projects))
-	{
-	return true;
-	}
-	else
-	{
-	return false;
-	}
+		$this->load->model('tickets_model');
+		if($projects_id)
+		{
+			if($this->hasAccess($access,'tickets',$user_id,$project_id) and $this->tickets_model->hasViewOwnAccess($user_id,$ticket_id,$project_id))
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else
+		{
+			if($this->hasAccess($access,'tickets',$user_id) and $thos->tickets_model->hasViewOwnAccess($user_id,$ticket_id))
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
 	}
 }
 

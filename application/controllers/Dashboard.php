@@ -11,20 +11,20 @@ class Dashboard extends MY_Controller
 	
 	public function index()
 	{
-		if ( ! $this->auth->logged_in() )
+		if ( ! $this->auth_lib->logged_in() )
         {
-            redirect('authentication/login', 'refresh');
+            redirect('auth/login', 'refresh');
         }
         else
         {
-            /* Title Page */
+            /* Title Page 
             $this->page_title->push(lang('menu_dashboard'));
             $this->data['pagetitle'] = $this->page_title->show();
 
-            /* Breadcrumbs */
+            /* Breadcrumbs 
             $this->data['breadcrumb'] = $this->breadcrumbs->show();
 
-            /* Data */
+            /* Data 
             $this->data['count_users']       = $this->dashboard_model->get_count_record('users');
             $this->data['count_groups']      = $this->dashboard_model->get_count_record('groups');
             $this->data['disk_totalspace']   = $this->dashboard_model->disk_totalspace(DIRECTORY_SEPARATOR);
@@ -36,12 +36,12 @@ class Dashboard extends MY_Controller
             $this->data['memory_usepercent'] = $this->dashboard_model->memory_usepercent(TRUE, FALSE);
 
 
-            /* TEST */
+            /* TEST 
             $this->data['url_exist']    = is_url_exist('http://www.domprojects.com');
 
 
-            /* Load Template */
-            $this->template->admin_render('admin/dashboard/index', $this->data);
+            /* Load Template 
+            $this->template->admin_render('admin/dashboard/index', $this->data);*/
         }
 	}
 
