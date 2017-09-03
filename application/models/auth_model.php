@@ -817,7 +817,7 @@ class Auth_model extends CI_Model
 
 				$this->set_session($user);
 
-				$this->update_last_login($user->id);
+				//$this->update_last_login($user->id);
 
 				$this->clear_login_attempts($identity);
 
@@ -1300,8 +1300,16 @@ class Auth_model extends CI_Model
 	{
 		$this->load->helper('date');
 
-		$this->db->query($this->sql['update_user_lastlogin'], array(time(), $id));
-		return $this->db->num_rows() == 1;
+		$query = $this->db->query($this->sql['update_user_lastlogin'], array(time(), $id));
+
+		if ($query->num_rows() > 0)
+		{
+			return true;
+		}
+		else 
+		{
+			return false;
+		}
 	}
 
 	/**
@@ -1864,7 +1872,7 @@ class Auth_model extends CI_Model
 		return false;    
 	}
 
-	public function checkAccess($c,$access,$module,$user_id,$projects_id=false)
+	public function checkAccess($access,$module,$user_id,$projects_id=false)
 	{
 		return $this->hasAccess($access,$module,$user_id,$projects_id);
 	}
@@ -1920,6 +1928,89 @@ class Auth_model extends CI_Model
 				return false;
 			}
 		}
+	}
+
+	public function translatePriv($priv_id) {
+		
+		$schema = array('view'      =>false,
+						'view_own'  =>false,                    
+						'insert'    =>false,
+						'edit'      =>false,
+						'delete'    =>false);
+
+		if ($priv_id > 0)
+		{
+			switch($priv_id)
+			{    
+				//full access
+				case '1':     
+				$schema = array('view'      =>true,
+				'view_own'  =>false,                            
+				'insert'    =>true,
+				'edit'      =>true,
+				'delete'    =>true);
+				break;     
+				//view only             
+				case '2':     
+				$schema = array('view'      =>true,
+				'view_own'  =>false,                            
+				'insert'    =>false,
+				'edit'      =>false,
+				'delete'    =>false);
+				break;   
+				//view own only       
+				case '3':     
+				$schema = array('view'      =>true,
+				'view_own'  =>true,                            
+				'insert'    =>false,
+				'edit'      =>false,
+				'delete'    =>false);
+				break;
+				//manage_own_lnly  
+				case '4':     
+				$schema = array('view'      =>true,
+				'view_own'  =>true,                            
+				'insert'    =>true,
+				'edit'      =>true,
+				'delete'    =>true);
+				break;
+			}
+		}
+		return $schema;
+	}
+
+	public function getUserPriviledge($user_id) 
+	{
+		$access = array();
+		$ugroups = $this->db->query($this->sql['get_user_priv'], array($userid));
+
+		if(empty($ugroups->result()) )
+		{
+			$access['projects_priv']['value'] = 0;
+			$access['tasks_priv']['value'] = 0;
+			$access['tickets_priv']['value'] = 0;           
+			$access['discussions_priv']['value'] = 0;
+			$access['config_priv']['value'] = 0;
+			$access['users_priv']['value'] = 0;
+		}
+		else {
+			foreach ($ugroups as $group) 
+			{
+				$access['projects_priv']['value'] = ($group->projects_priv > $access['projects_priv']['value']) ? $group->projects_priv : $access['projects_priv']['value'];
+				$access['tasks_priv']['value'] = ($group->tasks_priv > $access['tasks_priv']['value']) ? $group->tasks_priv : $access['tasks_priv']['value'];
+				$access['tickets_priv']['value'] = ($group->tickets_priv > $access['tickets_priv']['value']) ? $group->tickets_priv : $access['tickets_priv']['value'];           
+				$access['discussions_priv']['value'] = ($group->discussions_priv > $access['discussions_priv']['value']) ? $group->discussions_priv : $access['discussions_priv']['value'];           
+				$access['config_priv']['value'] = ($group->config_priv > $access['config_priv']['value']) ? $group->config_priv : $access['config_priv']['value'];
+				$access['users_priv']['value'] = ($group->users_priv > $access['users_priv']['value']) ? $group->users_priv : $access['users_priv']['value'];
+			}
+		}
+
+		$access['projects_priv']['schema'] = $this->translatePriv($access['projects_priv']['value']);
+		$access['tasks_priv']['schema'] = $this->translatePriv($access['projects_priv']['value']);
+		$access['tickets_priv']['schema'] = $this->translatePriv($access['tickets_priv']['value']);
+		$access['discussions_priv']['schema'] = $this->translatePriv($access['discussions_priv']['value']);
+		$access['config_priv']['schema'] = $this->translatePriv($access['config_priv']['value']);
+		$access['users_priv']['schema'] = $this->translatePriv($access['users_priv']['value']);	
 	}
 }
 
