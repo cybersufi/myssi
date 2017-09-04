@@ -7,6 +7,8 @@ class Dashboard extends MY_Controller
 	public function __construct()
     {
         parent::__construct();
+        $this->set_pagename('dashboard');
+        $this->data['pagetitle'] = "Dashboard";
     }
 	
 	public function index()
@@ -17,10 +19,6 @@ class Dashboard extends MY_Controller
         }
         else
         {
-            $this->set_pagename('dashboard');
-            $this->data['pagetitle'] = "Dashboard";
-            $this->data['user_priv'] = $this->auth_lib->getUserPriviledge($this->auth_lib->get_user_id());
-            
             /* Load Template */
             $this->template->render('dashboard', $this->data);
         }

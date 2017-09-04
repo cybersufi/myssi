@@ -38,12 +38,25 @@ class MY_Controller extends CI_Controller
                 $this->load->model('user_model');
                 $this->data['color'] = $this->user_model->getUserColor($this->auth_lib->get_user_id());
 
+                $this->set_main_header();
+                $this->prepare_sidebar_priv();
+        }
+
+        public function set_main_header() 
+        {
                 if ($this->auth_lib->logged_in()) {
                         $this->load->helper('date');
                         $usr = $this->auth_lib->get_user_attr();
                         $this->data['username'] = $usr->name;
                         $this->data['userphoto'] = $usr->photo;
                         $this->data['membersince'] = mdate('%M. %Y', $usr->created_on);
+                }
+        }
+
+        public function prepare_sidebar_priv()
+        {
+                if ($this->auth_lib->logged_in()) {
+                        $this->data['user_priv'] = $this->auth_lib->getUserPriviledge($this->auth_lib->get_user_id());
                 }
         }
 

@@ -14,5 +14,14 @@ $config['auth']['full_footer']		= false;
 $config['dashboard']['css']				= '';
 $config['dashboard']['js']				= '';
 $config['dashboard']['main_header']		= true;
-$config['dashboard']['main_sidebar']		= true;
+$config['dashboard']['main_sidebar']	= true;
 $config['dashboard']['full_footer']		= true;
+
+
+/*dashboard page*/
+/* auth page */
+$config['myprofile']['css']				= '';
+$config['myprofile']['js']				= '';
+$config['myprofile']['main_header']		= true;
+$config['myprofile']['main_sidebar']	= true;
+$config['myprofile']['full_footer']		= true;
