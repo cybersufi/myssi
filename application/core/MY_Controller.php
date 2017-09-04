@@ -33,6 +33,9 @@ class MY_Controller extends CI_Controller
                 $this->data['title_mini']       = $this->config->item('title_mini');
                 $this->data['pluginscss']       = array();
                 $this->data['pluginsjs']        = array();
+
+                $this->load->model('user_model');
+                $this->data['color'] = $this->user_model->getUserColor($this->auth_lib->get_user_id());
         }
 
         public function load_bsplugin($plugname)
@@ -48,5 +51,4 @@ class MY_Controller extends CI_Controller
                 $this->data['is_main_header'] = $this->apps[$pagename]['main_header'];
                 $this->data['is_main_sidebar'] = $this->apps[$pagename]['main_sidebar'];
         }
-
 }

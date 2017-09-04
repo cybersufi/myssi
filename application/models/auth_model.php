@@ -38,62 +38,6 @@ class Auth_model extends CI_Model
 	public $identity;
 
 	/**
-	 * Where
-	 *
-	 * @var array
-	 **/
-	public $_ion_where = array();
-
-	/**
-	 * Select
-	 *
-	 * @var array
-	 **/
-	public $_ion_select = array();
-
-	/**
-	 * Like
-	 *
-	 * @var array
-	 **/
-	public $_ion_like = array();
-
-	/**
-	 * Limit
-	 *
-	 * @var string
-	 **/
-	public $_ion_limit = NULL;
-
-	/**
-	 * Offset
-	 *
-	 * @var string
-	 **/
-	public $_ion_offset = NULL;
-
-	/**
-	 * Order By
-	 *
-	 * @var string
-	 **/
-	public $_ion_order_by = NULL;
-
-	/**
-	 * Order
-	 *
-	 * @var string
-	 **/
-	public $_ion_order = NULL;
-
-	/**
-	 * Hooks
-	 *
-	 * @var object
-	 **/
-	protected $_ion_hooks;
-
-	/**
 	 * Response
 	 *
 	 * @var string
@@ -817,7 +761,7 @@ class Auth_model extends CI_Model
 
 				$this->set_session($user);
 
-				//$this->update_last_login($user->id);
+				$this->update_last_login($user->id);
 
 				$this->clear_login_attempts($identity);
 
@@ -1299,17 +1243,7 @@ class Auth_model extends CI_Model
 	public function update_last_login($id)
 	{
 		$this->load->helper('date');
-
-		$query = $this->db->query($this->sql['update_user_lastlogin'], array(time(), $id));
-
-		if ($query->num_rows() > 0)
-		{
-			return true;
-		}
-		else 
-		{
-			return false;
-		}
+		return $this->db->query($this->sql['update_user_lastlogin'], array(time(), $id));
 	}
 
 	/**
@@ -1979,12 +1913,23 @@ class Auth_model extends CI_Model
 		return $schema;
 	}
 
-	public function getUserPriviledge($user_id) 
+	public function getUserPriviledge($userid) 
 	{
-		$access = array();
 		$ugroups = $this->db->query($this->sql['get_user_priv'], array($userid));
+		$access['projects_priv']['value'] = 4;
+		$access['tasks_priv']['value'] = 4;
+		$access['tickets_priv']['value'] = 4;           
+		$access['discussions_priv']['value'] = 4;
+		$access['config_priv']['value'] = 4;
+		$access['users_priv']['value'] = 4;
+		$access['projects_priv']['schema'] = array();
+		$access['tasks_priv']['schema'] = array();
+		$access['tickets_priv']['schema'] = array();
+		$access['discussions_priv']['schema'] = array();
+		$access['config_priv']['schema'] = array();
+		$access['users_priv']['schema'] = array();
 
-		if(empty($ugroups->result()) )
+		if ($ugroups->num_rows() == 0)
 		{
 			$access['projects_priv']['value'] = 0;
 			$access['tasks_priv']['value'] = 0;
@@ -1994,14 +1939,14 @@ class Auth_model extends CI_Model
 			$access['users_priv']['value'] = 0;
 		}
 		else {
-			foreach ($ugroups as $group) 
+			foreach ($ugroups->result() as $group) 
 			{
-				$access['projects_priv']['value'] = ($group->projects_priv > $access['projects_priv']['value']) ? $group->projects_priv : $access['projects_priv']['value'];
-				$access['tasks_priv']['value'] = ($group->tasks_priv > $access['tasks_priv']['value']) ? $group->tasks_priv : $access['tasks_priv']['value'];
-				$access['tickets_priv']['value'] = ($group->tickets_priv > $access['tickets_priv']['value']) ? $group->tickets_priv : $access['tickets_priv']['value'];           
-				$access['discussions_priv']['value'] = ($group->discussions_priv > $access['discussions_priv']['value']) ? $group->discussions_priv : $access['discussions_priv']['value'];           
-				$access['config_priv']['value'] = ($group->config_priv > $access['config_priv']['value']) ? $group->config_priv : $access['config_priv']['value'];
-				$access['users_priv']['value'] = ($group->users_priv > $access['users_priv']['value']) ? $group->users_priv : $access['users_priv']['value'];
+				$access['projects_priv']['value'] = ($group->projects_priv < $access['projects_priv']['value']) ? $group->projects_priv : $access['projects_priv']['value'];
+				$access['tasks_priv']['value'] = ($group->tasks_priv < $access['tasks_priv']['value']) ? $group->tasks_priv : $access['tasks_priv']['value'];
+				$access['tickets_priv']['value'] = ($group->tickets_priv < $access['tickets_priv']['value']) ? $group->tickets_priv : $access['tickets_priv']['value'];           
+				$access['discussions_priv']['value'] = ($group->discussions_priv < $access['discussions_priv']['value']) ? $group->discussions_priv : $access['discussions_priv']['value'];           
+				$access['config_priv']['value'] = ($group->config_priv < $access['config_priv']['value']) ? $group->config_priv : $access['config_priv']['value'];
+				$access['users_priv']['value'] = ($group->users_priv < $access['users_priv']['value']) ? $group->users_priv : $access['users_priv']['value'];
 			}
 		}
 
@@ -2011,6 +1956,8 @@ class Auth_model extends CI_Model
 		$access['discussions_priv']['schema'] = $this->translatePriv($access['discussions_priv']['value']);
 		$access['config_priv']['schema'] = $this->translatePriv($access['config_priv']['value']);
 		$access['users_priv']['schema'] = $this->translatePriv($access['users_priv']['value']);	
+
+		return $access;
 	}
 }
 

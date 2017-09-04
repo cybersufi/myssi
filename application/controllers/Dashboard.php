@@ -19,10 +19,8 @@ class Dashboard extends MY_Controller
         {
             $this->set_pagename('dashboard');
             $this->data['pagetitle'] = "Dashboard";
-            print_r ($this->session->userdata());
-            //$this->data['user_priv'] = $this->auth_lib->getUserPriviledge($this->auth_lib->get_user_id());
-
-
+            $this->data['user_priv'] = $this->auth_lib->getUserPriviledge($this->auth_lib->get_user_id());
+            
             /* Load Template */
             $this->template->render('dashboard', $this->data);
         }

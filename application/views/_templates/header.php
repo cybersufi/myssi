@@ -13,9 +13,11 @@
   <link rel="stylesheet" href="<?php echo base_url($frameworks_dir . '/font-awesome/css/font-awesome.min.css'); ?>">
   <!-- Ionicons -->
   <link rel="stylesheet" href="<?php echo base_url($frameworks_dir . '/ionicons/css/ionicons.min.css'); ?>">
+  <!-- jvectormap -->
+  <link rel="stylesheet" href="<?php echo base_url($plugins_dir . '/jvectormap/jquery-jvectormap-1.2.2.css'); ?>">
   <!-- Theme style -->
   <link rel="stylesheet" href="<?php echo base_url($frameworks_dir . '/adminlte/css/AdminLTE.min.css'); ?>">
-  <!--<link rel="stylesheet" href="<?php echo base_url($frameworks_dir . '/adminlte/css/skins/skin-red.min.css'); ?>">-->
+  <link rel="stylesheet" href="<?php echo base_url($frameworks_dir . '/adminlte/css/skins/skin-'.$color.'.min.css'); ?>">
   <!-- custom Plugins & page stylesheet -->
   <?php
     if (isset($pluginscss) && (count($pluginscss) > 0)) {

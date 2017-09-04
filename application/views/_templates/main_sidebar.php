@@ -9,11 +9,14 @@
         <li class="header">MAIN NAVIGATION</li>
         <!-- Dashboard -->
         <li>
-          <a href="dashboard">
+          <a href="<?php echo base_url('dashboard'); ?>">
             <i class="fa fa-home"></i> <span>Dashboard</span>
           </a>
         </li>
         <!-- /Dashboard -->
+        <?php if ($user_priv['projects_priv']['schema']['view'])
+          {
+        ?>
         <!-- Projects -->
         <li class="treeview">
           <a href="#">
@@ -24,10 +27,18 @@
           </a>
           <ul class="treeview-menu">
             <li><a href="index.html"><i class="fa fa-circle-o"></i>View All</a></li>
+            <?php if ($user_priv['projects_priv']['schema']['insert']) {?>
             <li><a href="index2.html"><i class="fa fa-circle-o"></i>Add Project</a></li>
+            <?php } ?>
           </ul>
         </li>
         <!-- /Projects -->
+        <?php
+          }
+
+          if ($user_priv['tasks_priv']['schema']['view'])
+          {
+        ?>
         <!-- Task -->
         <li class="treeview">
           <a href="#">
@@ -38,10 +49,18 @@
           </a>
           <ul class="treeview-menu">
             <li><a href="index.html"><i class="fa fa-circle-o"></i>View All</a></li>
+            <?php if ($user_priv['tasks_priv']['schema']['insert']) {?>
             <li><a href="index2.html"><i class="fa fa-circle-o"></i>Add Task</a></li>
+            <?php } ?>
           </ul>
         </li>
         <!-- /Task -->
+        <?php
+          }
+
+          if ($user_priv['tickets_priv']['schema']['view'])
+          {
+        ?>
         <!-- Tickets -->
         <li class="treeview">
           <a href="#">
@@ -52,10 +71,18 @@
           </a>
           <ul class="treeview-menu">
             <li><a href="index.html"><i class="fa fa-circle-o"></i>View All</a></li>
+            <?php if ($user_priv['tickets_priv']['schema']['insert']) {?>
             <li><a href="index2.html"><i class="fa fa-circle-o"></i>Add Ticket</a></li>
+            <?php } ?>
           </ul>
         </li>
         <!-- /Ticket -->
+        <?php
+          }
+
+          if ($user_priv['discussions_priv']['schema']['view'])
+          {
+        ?>
         <!-- Discussion -->
         <li class="treeview">
           <a href="#">
@@ -66,10 +93,18 @@
           </a>
           <ul class="treeview-menu">
             <li><a href="index.html"><i class="fa fa-circle-o"></i>View All</a></li>
+            <?php if ($user_priv['discussions_priv']['schema']['insert']) {?>
             <li><a href="index2.html"><i class="fa fa-circle-o"></i>Add Discussions</a></li>
+            <?php } ?>
           </ul>
         </li>
         <!-- /Discussion -->
+        <?php
+          }
+
+          if ($user_priv['users_priv']['schema']['view'])
+          {
+        ?>
         <!-- Users -->
         <li class="treeview">
           <a href="#">
@@ -80,10 +115,18 @@
           </a>
           <ul class="treeview-menu">
             <li><a href="index.html"><i class="fa fa-circle-o"></i>View All</a></li>
+            <?php if ($user_priv['users_priv']['schema']['insert']) {?>
             <li><a href="index2.html"><i class="fa fa-circle-o"></i>Add Users</a></li>
+            <?php } ?>
           </ul>
         </li>
         <!-- /Users -->
+        <?php
+          }
+
+          if ($user_priv['config_priv']['schema']['view'])
+          {
+        ?>
         <!-- Config -->
         <li class="treeview">
           <a href="#">
@@ -132,6 +175,9 @@
           </ul>
         </li>
         <!-- /Tools -->
+        <?php 
+          }
+        ?>
       </ul>
       <!-- /.sidebar-menu -->
     </section>
