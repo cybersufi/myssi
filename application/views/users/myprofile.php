@@ -23,12 +23,6 @@
 
               <ul class="list-group list-group-unbordered">
                 <li class="list-group-item">
-                  <b>Member Since</b> <a class="pull-right"><?php echo $membersince; ?></a>
-                </li>
-                <li class="list-group-item">
-                  <b>Last Login</b> <a class="pull-right">543</a>
-                </li>
-                <li class="list-group-item">
                   <strong>User Groups</strong>
                   <p>
                     <span class="label label-danger">UI Design</span>
@@ -37,6 +31,15 @@
                     <span class="label label-warning">PHP</span>
                     <span class="label label-primary">Node.js</span>
                   </p>
+                </li>
+                <li class="list-group-item">
+                  <b>Member Since</b> <a class="pull-right"><?php echo $membersince; ?></a>
+                </li>
+                <li class="list-group-item">
+                  <b>Last Login</b> <a class="pull-right">543</a>
+                </li>
+                <li class="list-group-item">
+                  <b>From</b> <a class="pull-right">543</a>
                 </li>
               </ul>
             </div>
@@ -48,63 +51,73 @@
         <div class="col-md-9">
           <div class="nav-tabs-custom">
             <ul class="nav nav-tabs">
-              <li class="active"><a href="#settings" data-toggle="tab">General</a></li>
-              <li><a href="#settings" data-toggle="tab">User Config</a></li>
-              <li><a href="#settings" data-toggle="tab">User Group</a></li>
+              <li class="active"><a href="#user-global" data-toggle="tab">General</a></li>
+              <li><a href="#user-config" data-toggle="tab">User Config</a></li>
             </ul>
             <div class="tab-content">
-              <div class="active-tab-pane" id="settings">
-                <form class="form-horizontal">
+              <div class="active tab-pane" id="user-global">
+                <?php echo form_open_multipart('users/updateMyProfile', 'class="form-horizontal" id="myprofileform"'); ?>
                   <div class="form-group">
                     <label for="inputName" class="col-sm-2 control-label">Name</label>
                     <div class="col-sm-10">
-                      <input type="email" class="form-control" id="inputName" placeholder="Name">
+                      <?php echo form_input($name);?>
                     </div>
                   </div>
                   <div class="form-group">
                     <label for="inputEmail" class="col-sm-2 control-label">Email</label>
                     <div class="col-sm-10">
-                      <input type="email" class="form-control" id="inputEmail" placeholder="Email">
+                      <?php echo form_input($email);?>
                     </div>
                   </div>
                   <div class="form-group">
-                    <label for="inputName" class="col-sm-2 control-label">Name</label>
-
+                    <label for="inputName" class="col-sm-2 control-label">Phone</label>
                     <div class="col-sm-10">
-                      <input type="text" class="form-control" id="inputName" placeholder="Name">
+                      <?php echo form_input($phone);?>
                     </div>
                   </div>
                   <div class="form-group">
-                    <label for="inputExperience" class="col-sm-2 control-label">Experience</label>
-
+                    <label for="inputExperience" class="col-sm-2 control-label">Photo</label>
                     <div class="col-sm-10">
-                      <textarea class="form-control" id="inputExperience" placeholder="Experience"></textarea>
-                    </div>
-                  </div>
-                  <div class="form-group">
-                    <label for="inputSkills" class="col-sm-2 control-label">Skills</label>
-
-                    <div class="col-sm-10">
-                      <input type="text" class="form-control" id="inputSkills" placeholder="Skills">
+                      <?php echo form_upload($photo);?>
                     </div>
                   </div>
                   <div class="form-group">
                     <div class="col-sm-offset-2 col-sm-10">
-                      <div class="checkbox">
-                        <label>
-                          <input type="checkbox"> I agree to the <a href="#">terms and conditions</a>
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="form-group">
-                    <div class="col-sm-offset-2 col-sm-10">
-                      <button type="submit" class="btn btn-danger">Submit</button>
+                      <button type="submit" class="btn btn-danger">Update</button>
+                      <button type="cancel" class="btn btn-warning">Revert</button>
                     </div>
                   </div>
                 </form>
               </div>
               <!-- /.tab-pane -->
+              <div class="tab-pane" id="user-config">
+                <?php echo form_open('users/updatemypass', 'class="form-horizontal" id="mypassform"'); ?>
+                  <div class="form-group">
+                    <label for="inputoldpassword" class="col-sm-3 control-label">Old Password</label>
+                    <div class="col-sm-9">
+                      <?php echo form_input($oldpassword);?>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="inputnewpassword" class="col-sm-3 control-label">New Password</label>
+                    <div class="col-sm-9">
+                      <?php echo form_input($newpassword);?>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="inputconfpassword" class="col-sm-3 control-label">Re-New Password</label>
+                    <div class="col-sm-9">
+                      <?php echo form_input($confpassword);?>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                      <button type="submit" class="btn btn-danger">Update</button>
+                      <button type="cancel" class="btn btn-warning">Revert</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
             </div>
             <!-- /.tab-content -->
           </div>
