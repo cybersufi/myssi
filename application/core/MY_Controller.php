@@ -27,6 +27,7 @@ class MY_Controller extends CI_Controller
                 $this->data['avatar_dir']       = $this->config->item('avatar_dir');
                 $this->data['upload_dir']       = $this->config->item('upload_dir');
                 $this->data['attachment_dir']   = $this->config->item('attachment_dir');
+                $this->data['photo_dir']        = $this->config->item('photo_dir');
 
                 $this->data['title']            = $this->config->item('title');
                 $this->data['title_lg']         = $this->config->item('title_lg');
@@ -36,6 +37,14 @@ class MY_Controller extends CI_Controller
 
                 $this->load->model('user_model');
                 $this->data['color'] = $this->user_model->getUserColor($this->auth_lib->get_user_id());
+
+                if ($this->auth_lib->logged_in()) {
+                        $this->load->helper('date');
+                        $usr = $this->auth_lib->get_user_attr();
+                        $this->data['username'] = $usr->name;
+                        $this->data['userphoto'] = $usr->photo;
+                        $this->data['membersince'] = mdate('%M. %Y', $usr->created_on);
+                }
         }
 
         public function load_bsplugin($plugname)

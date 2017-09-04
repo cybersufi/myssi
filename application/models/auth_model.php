@@ -1959,6 +1959,20 @@ class Auth_model extends CI_Model
 
 		return $access;
 	}
+
+	public function get_user_attrib($user_id)
+	{
+		if (!empty($user_id))
+		{
+			$query = $this->db->query($this->sql['get_user_by_id'], array($user_id));
+			if ($query->num_rows() > 0) {
+				return $query->row();
+			} else {
+				return null;
+			}
+		}
+		return null;
+	}
 }
 
 ?>

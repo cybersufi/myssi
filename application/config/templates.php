@@ -8,4 +8,5 @@ $config['app_dir']   	 		= $config['assets_dir'] . '/app';
 $config['upload_dir']     		= 'upload';
 $config['avatar_dir']     		= $config['upload_dir'] . '/avatar';
 $config['attachment_dir']     	= $config['upload_dir'] . '/attachments';
+$config['photo_dir']     		= $config['upload_dir'] . '/photos';
 

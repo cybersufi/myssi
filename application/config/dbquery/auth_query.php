@@ -12,7 +12,7 @@ $config['get_forgotten_pass_time']			= 'SELECT forgotten_password_time FROM user
 $config['get_default_group_status']			= 'SELECT * FROM groups WHERE name = ?';
 $config['get_group_by_gid']					= 'SELECT * FROM groups WHERE id = ?';
 $config['get_group_by_name']				= 'SELECT * FROM groups WHERE name = ?';
-$config['get_user_by_id']					= 'SELECT * FROM users WHERE id =?';
+$config['get_user_by_id']					= 'SELECT * FROM users WHERE id =? ORDER BY id LIMIT 1';
 $config['get_user_by_remember_code']		= 'SELECT id, email, last_login FROM users WHERE email = ? and remember_code = ? ORDER BY id DESC LIMIT 1';
 $config['get_user_by_email']				= 'SELECT email, id, password, active, last_login FROM users WHERE email = ? ORDER BY id DESC LIMIT 1';
 $config['count_atempt_by_ip']				= 'SELECT 1 FROM login_attempts WHERE ip_address = ? AND login = ?';

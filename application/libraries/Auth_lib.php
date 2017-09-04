@@ -403,12 +403,6 @@ class Auth_lib
 		return (bool) $this->session->userdata('identity');
 	}
 
-	/**
-	 * logged_in
-	 *
-	 * @return integer
-	 * @author jrmadsen67
-	 **/
 	public function get_user_id()
 	{
 		$user_id = $this->session->userdata('user_id');
@@ -419,6 +413,15 @@ class Auth_lib
 		return null;
 	}
 
+	public function get_user_attr()
+	{
+		$user_id = $this->session->userdata('user_id');
+		if (!empty($user_id))
+		{
+			return $this->auth_model->get_user_attrib($user_id);
+		}
+		return null;
+	}
 
 	/**
 	 * is_admin
