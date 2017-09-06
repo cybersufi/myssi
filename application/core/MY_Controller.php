@@ -50,6 +50,10 @@ class MY_Controller extends CI_Controller
                         $this->data['username'] = $usr->name;
                         $this->data['userphoto'] = $usr->photo;
                         $this->data['membersince'] = mdate('%M. %Y', $usr->created_on);
+                        $this->data['lastloginfrom'] = $usr->ip_address;
+                        $this->data['lastlogin'] = mdate('%d/%m/%Y %H:%i', $usr->last_login);
+                        $grp = $this->auth_lib->get_user_grps();
+                        $this->data['usergroups'] = $grp;
                 }
         }
 

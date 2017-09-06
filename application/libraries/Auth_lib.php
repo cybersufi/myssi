@@ -423,6 +423,16 @@ class Auth_lib
 		return null;
 	}
 
+	public function get_user_grps()
+	{
+		$user_id = $this->session->userdata('user_id');
+		if (!empty($user_id))
+		{
+			return $this->auth_model->get_user_groups($user_id);
+		}
+		return null;
+	}
+
 	/**
 	 * is_admin
 	 *

@@ -7,6 +7,7 @@ class Users extends MY_Controller
 	public function __construct()
     {
         parent::__construct();
+        $this->load->model('user_model');
     }
 	
 	public function index()
@@ -32,7 +33,8 @@ class Users extends MY_Controller
 
     }
 
-    public function myProfile() {
+    public function myProfile() 
+    {
         if ( ! $this->auth_lib->logged_in() )
         {
             redirect('/', 'refresh');
@@ -44,11 +46,13 @@ class Users extends MY_Controller
 
             $this->data['message'] = $this->session->flashdata('message');
 
+            $usr = $this->user_model->getUserById($this->auth_lib->get_user_id());
+
             $this->data['name'] = array(
                 'name'        => 'name',
                 'id'          => 'name',
                 'type'        => 'text',
-                'value'       => $this->form_validation->set_value('name'),
+                'value'       => $usr->name,
                 'class'       => 'form-control',
                 'placeholder' => 'Your Name'
             );
@@ -57,7 +61,7 @@ class Users extends MY_Controller
                 'name'        => 'email',
                 'id'          => 'email',
                 'type'        => 'email',
-                'value'       => $this->form_validation->set_value('email'),
+                'value'       => $usr->email,
                 'class'       => 'form-control',
                 'placeholder' => 'Your Email'
             );
@@ -66,7 +70,7 @@ class Users extends MY_Controller
                 'name'        => 'phone',
                 'id'          => 'phone',
                 'type'        => 'text',
-                'value'       => '',
+                'value'       => $usr->phone,
                 'class'       => 'form-control',
                 'placeholder' => 'Your Phone Number'
             );
@@ -111,8 +115,36 @@ class Users extends MY_Controller
         }
     }
 
-    public function updateMyProfile() {
-        return null;
+    public function updateMyProfile() 
+    {
+        if ( ! $this->auth_lib->logged_in())
+        {   
+            /* Valid form */
+            $this->form_validation->set_rules('name', 'Name', 'required');
+            $this->form_validation->set_rules('email', 'Email', 'required');
+
+            if ($this->form_validation->run() == TRUE)
+            {
+                $remember = (bool) $this->input->post('remember');
+
+                if ($this->auth_lib->login($this->input->post('identity'), $this->input->post('password'), $remember))
+                {
+                    $this->session->set_flashdata('message', $this->auth_lib->messages());
+                    redirect('/', 'refresh');
+                }
+                else
+                {
+                    $this->session->set_flashdata('message', $this->auth_lib->errors());
+                    redirect('auth/login', 'refresh');
+                }
+            }
+            else
+            {
+                redirect('users/myprofile', 'refresh');
+            }
+        } else {
+            redirect('/', 'refresh');
+        }
     }
 
     public function updateMyPass() {

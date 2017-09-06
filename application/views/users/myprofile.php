@@ -22,24 +22,24 @@
               <h3 class="profile-username text-center"><?php echo $username ?></h3>
 
               <ul class="list-group list-group-unbordered">
-                <li class="list-group-item">
+                <li class="list-group-item" >
                   <strong>User Groups</strong>
-                  <p>
-                    <span class="label label-danger">UI Design</span>
-                    <span class="label label-success">Coding</span>
-                    <span class="label label-info">Javascript</span>
-                    <span class="label label-warning">PHP</span>
-                    <span class="label label-primary">Node.js</span>
+                  <p class="pull-right">
+                    <?php
+                      foreach ($usergroups as $gr) {
+                        echo '<span class="label bg-'.$gr->color.'">'.ucwords($gr->name).'</span>';
+                      }
+                    ?>
                   </p>
                 </li>
                 <li class="list-group-item">
                   <b>Member Since</b> <a class="pull-right"><?php echo $membersince; ?></a>
                 </li>
                 <li class="list-group-item">
-                  <b>Last Login</b> <a class="pull-right">543</a>
+                  <b>Last Login</b> <a class="pull-right"><?php echo $lastlogin; ?></a>
                 </li>
                 <li class="list-group-item">
-                  <b>From</b> <a class="pull-right">543</a>
+                  <b>From</b> <a class="pull-right"><?php echo $lastloginfrom; ?></a>
                 </li>
               </ul>
             </div>
@@ -52,7 +52,7 @@
           <div class="nav-tabs-custom">
             <ul class="nav nav-tabs">
               <li class="active"><a href="#user-global" data-toggle="tab">General</a></li>
-              <li><a href="#user-config" data-toggle="tab">User Config</a></li>
+              <li><a href="#user-config" data-toggle="tab">Password</a></li>
             </ul>
             <div class="tab-content">
               <div class="active tab-pane" id="user-global">
@@ -84,7 +84,7 @@
                   <div class="form-group">
                     <div class="col-sm-offset-2 col-sm-10">
                       <button type="submit" class="btn btn-danger">Update</button>
-                      <button type="cancel" class="btn btn-warning">Revert</button>
+                      <button type="reset" class="btn btn-warning">Revert</button>
                     </div>
                   </div>
                 </form>
@@ -113,7 +113,7 @@
                   <div class="form-group">
                     <div class="col-sm-offset-2 col-sm-10">
                       <button type="submit" class="btn btn-danger">Update</button>
-                      <button type="cancel" class="btn btn-warning">Revert</button>
+                      <button type="reset" class="btn btn-warning">Revert</button>
                     </div>
                   </div>
                 </form>

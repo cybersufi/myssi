@@ -1973,6 +1973,20 @@ class Auth_model extends CI_Model
 		}
 		return null;
 	}
+
+	public function get_user_groups($user_id)
+	{
+		if (!empty($user_id))
+		{
+			$query = $this->db->query($this->sql['get_user_group'], array($user_id));
+			if ($query->num_rows() > 0) {
+				return $query->result();
+			} else {
+				return null;
+			}
+		}
+		return null;
+	}
 }
 
 ?>
