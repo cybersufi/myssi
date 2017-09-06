@@ -465,7 +465,6 @@ class Auth_model extends CI_Model
 	 **/
 	public function reset_password($identity, $new) {
 		if (!$this->identity_check($identity)) {
-			//$this->trigger_events(array('post_change_password', 'post_change_password_unsuccessful'));
 			return FALSE;
 		}
 

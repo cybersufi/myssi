@@ -7,6 +7,24 @@
         User Profile
       </h1>
     </section>
+    <?php if (! empty($error) || ! empty($messages)) { ?>
+    <div class="pad margin no-print">
+      <?php if (!empty($error)) { ?>
+      <div class="alert alert-danger alert-dismissible" style="margin-bottom: 0!important;">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <?php echo $error; ?>
+      </div>
+      <?php 
+        }
+        if (!empty($messages)) {
+      ?>
+      <div class="alert alert-success alert-dismissible" style="margin-bottom: 0!important;">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <?php echo $messages; ?>
+      </div>
+      <?php } ?>
+    </div>
+    <?php } ?>
 
     <!-- Main content -->
     <section class="content">

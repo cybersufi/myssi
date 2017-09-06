@@ -45,6 +45,7 @@ class Users extends MY_Controller
             $this->data['pagetitle'] = "My Profil";
 
             $this->data['message'] = $this->session->flashdata('message');
+            $this->data['error'] = $this->session->flashdata('error');
 
             $usr = $this->user_model->getUserById($this->auth_lib->get_user_id());
 
@@ -125,17 +126,20 @@ class Users extends MY_Controller
 
             if ($this->form_validation->run() == TRUE)
             {
-                $remember = (bool) $this->input->post('remember');
+                $id = $this->auth_lib->get_user_id();
+                $data['name'] = $this->input->post('name');
+                $data['email'] = $this->input->post('email');
+                $data['phone'] = $this->input->post('phone');
 
-                if ($this->auth_lib->login($this->input->post('identity'), $this->input->post('password'), $remember))
+                if ($this->user_model->updateUserData($id, $data))
                 {
-                    $this->session->set_flashdata('message', $this->auth_lib->messages());
-                    redirect('/', 'refresh');
+                    $this->session->set_flashdata('message', $this->notification->messages());
+                    redirect('users/myprofile', 'refresh');
                 }
                 else
                 {
-                    $this->session->set_flashdata('message', $this->auth_lib->errors());
-                    redirect('auth/login', 'refresh');
+                    $this->session->set_flashdata('error', $this->notification->errors());
+                    redirect('users/myprofile', 'refresh');
                 }
             }
             else
