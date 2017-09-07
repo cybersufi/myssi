@@ -216,12 +216,6 @@ class Auth_model extends CI_Model
 			return FALSE;
 		}
 
-		/*$query = $this->db->select('password, salt')
-		                  ->where('id', $id)
-		                  ->limit(1)
-		                  ->order_by('id', 'desc')
-		                  ->get($this->tables['users']);*/
-
 		$query = $this->db->query($this->sql['get_passnsalt'], array($id));
 
 		$hash_password_db = $query->row();

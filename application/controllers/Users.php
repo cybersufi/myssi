@@ -53,7 +53,7 @@ class Users extends MY_Controller
                 'name'        => 'name',
                 'id'          => 'name',
                 'type'        => 'text',
-                'value'       => $usr->name,
+                'value'       => $this->form_validation->set_value('name', $usr->name),
                 'class'       => 'form-control',
                 'placeholder' => 'Your Name'
             );
@@ -62,7 +62,7 @@ class Users extends MY_Controller
                 'name'        => 'email',
                 'id'          => 'email',
                 'type'        => 'email',
-                'value'       => $usr->email,
+                'value'       => $this->form_validation->set_value('email', $usr->email),
                 'class'       => 'form-control',
                 'placeholder' => 'Your Email'
             );
@@ -71,7 +71,7 @@ class Users extends MY_Controller
                 'name'        => 'phone',
                 'id'          => 'phone',
                 'type'        => 'text',
-                'value'       => $usr->phone,
+                'value'       => $this->form_validation->set_value('phone', $usr->phone),
                 'class'       => 'form-control',
                 'placeholder' => 'Your Phone Number'
             );
@@ -112,20 +112,25 @@ class Users extends MY_Controller
 
             /* Load Template */
             $this->template->render('users/myprofile', $this->data);
-            
         }
     }
 
-    public function updateMyProfile() 
+    /*public function updateMyProfile() 
     {
-        if ( ! $this->auth_lib->logged_in())
+        if ( $this->auth_lib->logged_in())
         {   
-            /* Valid form */
             $this->form_validation->set_rules('name', 'Name', 'required');
             $this->form_validation->set_rules('email', 'Email', 'required');
 
             if ($this->form_validation->run() == TRUE)
             {
+                $photo = $this->do_upload_foto();
+                if (!$photo) {
+                    $this->session->set_flashdata('error', $this->notification->errors());
+                } else {
+                    $data['photo'] = $photo;
+                }
+
                 $id = $this->auth_lib->get_user_id();
                 $data['name'] = $this->input->post('name');
                 $data['email'] = $this->input->post('email');
@@ -144,7 +149,7 @@ class Users extends MY_Controller
             }
             else
             {
-                redirect('users/myprofile', 'refresh');
+                $this->myProfile();
             }
         } else {
             redirect('/', 'refresh');
@@ -152,7 +157,60 @@ class Users extends MY_Controller
     }
 
     public function updateMyPass() {
-        return null;
+        if ( $this->auth_lib->logged_in())
+        {   
+            $this->form_validation->set_rules('oldpassword', 'Old Password', 'required');
+            $this->form_validation->set_rules('newpassword', 'New Password', 'required');
+            $this->form_validation->set_rules('confpassword', 'Confim Password', 'required|matches[newpassword]');
+
+            if ($this->form_validation->run() == TRUE)
+            {
+                $id = $this->auth_lib->get_user_id();
+                $email = $this->auth_lib->get_user_email();
+
+                $oldpassword = $this->input->post('oldpassword');
+                $newpassword = $this->input->post('newpassword');
+
+                if ($this->auth_lib->change_password($email, $oldpassword, $newpassword))
+                {
+                    $this->session->set_flashdata('message',$this->auth_lib->messagess());
+                    //redirect('users/myprofile', 'refresh');
+                } 
+                else 
+                {
+                    $this->session->set_flashdata('error',$this->auth_lib->errors());
+                    //redirect('users/myprofile', 'refresh');
+                }
+            }
+            else
+            {
+                $this->session->set_flashdata('error', validation_errors());
+                redirect('users/myprofile', 'refresh');
+            }
+        } else {
+            redirect('/', 'refresh');
+        }
+    }*/
+
+    public function do_upload_foto()
+    {
+        $config['upload_path']          = './'.$this->config->item('photo_dir').'/';
+        $config['allowed_types']        = 'gif|jpg|png';
+        $config['max_size']             = 100;
+        $config['max_width']            = 1024;
+        $config['max_height']           = 768;
+        $config['overwrite']            = TRUE;
+        $this->load->library('upload', $config);
+
+        if ( ! $this->upload->do_upload('photo'))
+        {
+            $this->notification->set_error($this->upload->display_errors('',''));
+            return false;
+        }
+        else
+        {
+            return $this->upload->data('file_name');
+        }
     }
 
 }

@@ -10,17 +10,18 @@
     <?php if (! empty($error) || ! empty($messages)) { ?>
     <div class="pad margin no-print">
       <?php if (!empty($error)) { ?>
-      <div class="alert alert-danger alert-dismissible" style="margin-bottom: 0!important;">
+      <div class="alert alert-danger alert-dismissible">
         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
         <?php echo $error; ?>
       </div>
       <?php 
         }
-        if (!empty($messages)) {
+
+        if (!empty($message)) {
       ?>
-      <div class="alert alert-success alert-dismissible" style="margin-bottom: 0!important;">
+      <div class="alert alert-success alert-dismissible">
         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-        <?php echo $messages; ?>
+        <?php echo $message; ?>
       </div>
       <?php } ?>
     </div>
@@ -74,7 +75,7 @@
             </ul>
             <div class="tab-content">
               <div class="active tab-pane" id="user-global">
-                <?php echo form_open_multipart('users/updateMyProfile', 'class="form-horizontal" id="myprofileform"'); ?>
+                <?php echo form_open_multipart('users/myProfile', 'class="form-horizontal" id="myprofileform"'); ?>
                   <div class="form-group">
                     <label for="inputName" class="col-sm-2 control-label">Name</label>
                     <div class="col-sm-10">
@@ -101,40 +102,49 @@
                   </div>
                   <div class="form-group">
                     <div class="col-sm-offset-2 col-sm-10">
-                      <button type="submit" class="btn btn-danger">Update</button>
-                      <button type="reset" class="btn btn-warning">Revert</button>
+                      <?php 
+                        echo form_hidden('action', 'update_info');
+                        echo form_submit('submit', 'Save', array('class' => 'btn btn-danger btn-flat'));
+                        echo form_submit('reset', 'Cancel', array('class' => 'btn btn-warning btn-flat'));
+                      ?>
                     </div>
                   </div>
-                </form>
+                <?php echo form_close(); ?>
               </div>
               <!-- /.tab-pane -->
               <div class="tab-pane" id="user-config">
-                <?php echo form_open('users/updatemypass', 'class="form-horizontal" id="mypassform"'); ?>
-                  <div class="form-group">
+                <?php echo form_open('users/myProfile', 'class="form-horizontal" id="mypassform"'); ?>
+                  <div class="form-group has-feedback">
                     <label for="inputoldpassword" class="col-sm-3 control-label">Old Password</label>
                     <div class="col-sm-9">
                       <?php echo form_input($oldpassword);?>
+                      <span class="form-control-feedback"></span>
                     </div>
                   </div>
-                  <div class="form-group">
+                  <div class="form-group has-feedback">
                     <label for="inputnewpassword" class="col-sm-3 control-label">New Password</label>
                     <div class="col-sm-9">
                       <?php echo form_input($newpassword);?>
+                      <span class="form-control-feedback"></span>
                     </div>
                   </div>
-                  <div class="form-group">
+                  <div class="form-group has-feedback">
                     <label for="inputconfpassword" class="col-sm-3 control-label">Re-New Password</label>
                     <div class="col-sm-9">
                       <?php echo form_input($confpassword);?>
+                      <span class="form-control-feedback"></span>
                     </div>
                   </div>
                   <div class="form-group">
                     <div class="col-sm-offset-2 col-sm-10">
-                      <button type="submit" class="btn btn-danger">Update</button>
-                      <button type="reset" class="btn btn-warning">Revert</button>
+                      <?php 
+                        echo form_hidden('action', 'change_pass');
+                        echo form_submit('submit', 'Save', array('class' => 'btn btn-danger btn-flat'));
+                        echo form_submit('reset', 'Cancel', array('class' => 'btn btn-warning btn-flat'));
+                      ?>
                     </div>
                   </div>
-                </form>
+                <?php echo form_close(); ?>
               </div>
             </div>
             <!-- /.tab-content -->

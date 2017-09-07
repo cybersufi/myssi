@@ -413,6 +413,16 @@ class Auth_lib
 		return null;
 	}
 
+	public function get_user_email()
+	{
+		$email = $this->session->userdata('email');
+		if (!empty($email))
+		{
+			return $email;
+		}
+		return null;
+	}
+
 	public function get_user_attr()
 	{
 		$user_id = $this->session->userdata('user_id');

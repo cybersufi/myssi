@@ -54,20 +54,27 @@ class User_model extends CI_Model
 
 	public function updateUserData($userid, array $data) 
 	{
-		$user = $this->db->query($this->sql['get_user_by_id'], array((float)$id))->row();
+		$user = $this->db->query($this->sql['get_user_by_id'], array((float)$userid))->row();
 		
 		$this->db->trans_begin();
 
 		if (array_key_exists('email', $data) && $this->auth_lib->email_check($data['email']))
 		{
-			$this->notification->set_error('Email Already Used or Invalid');
-			$this->notification->set_error('Unable to Update Account Information');
-			return FALSE;
+			$uid = $this->db->query($this->sql['get_userid_by_email'], array($data['email']))->row();
+			if ($uid->id != $userid) {
+				$this->notification->set_error('Email Already Used or Invalid');
+				$this->notification->set_error('Unable to Update Account Information');
+				return FALSE;
+			}
 		}
 
-		$param = array ($data['name'], $data['email'], $data['phone'], $data['photo'], $userid);
-
-		$this->db->query($this->sql['update_user_by_id'], $param);
+		if (array_key_exists('photo', $data)) {
+			$param = array ($data['name'], $data['email'], $data['phone'], $data['photo'], $userid);
+			$this->db->query($this->sql['update_user_with_photo'], $param);
+		} else {
+			$param = array ($data['name'], $data['email'], $data['phone'], $userid);
+			$this->db->query($this->sql['update_user_without_photo'], $param);
+		}
 
 		if ($this->db->trans_status() === FALSE)
 		{
