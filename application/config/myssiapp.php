@@ -30,3 +30,24 @@ $config['myprofile']['js']				= '';
 $config['myprofile']['main_header']		= true;
 $config['myprofile']['main_sidebar']	= true;
 $config['myprofile']['full_footer']		= true;
+
+/*userlist*/
+$config['userlist']['css']				= '';
+$config['userlist']['js']				= '';
+$config['userlist']['main_header']		= true;
+$config['userlist']['main_sidebar']		= true;
+$config['userlist']['full_footer']		= true;
+
+/*userlist*/
+$config['usergrouplist']['css']				= '';
+$config['usergrouplist']['js']				= '';
+$config['usergrouplist']['main_header']		= true;
+$config['usergrouplist']['main_sidebar']	= true;
+$config['usergrouplist']['full_footer']		= true;
+
+/*userlist*/
+$config['groupdetail']['css']				= '';
+$config['groupdetail']['js']				= '';
+$config['groupdetail']['main_header']		= true;
+$config['groupdetail']['main_sidebar']	= true;
+$config['groupdetail']['full_footer']		= true;

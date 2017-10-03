@@ -1765,7 +1765,7 @@ class Auth_model extends CI_Model
 				'edit'      =>false,
 				'delete'    =>false);
 				break;
-				//manage_own_lnly  
+				//manage_own_only  
 				case '4':     
 				$schema = array('view'      =>true,
 				'view_own'  =>true,                            
@@ -1974,8 +1974,6 @@ class Auth_model extends CI_Model
 			$query = $this->db->query($this->sql['get_user_group'], array($user_id));
 			if ($query->num_rows() > 0) {
 				return $query->result();
-			} else {
-				return null;
 			}
 		}
 		return null;

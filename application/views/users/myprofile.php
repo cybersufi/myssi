@@ -70,28 +70,31 @@
         <div class="col-md-9">
           <div class="nav-tabs-custom">
             <ul class="nav nav-tabs">
-              <li class="active"><a href="#user-global" data-toggle="tab">General</a></li>
-              <li><a href="#user-config" data-toggle="tab">Password</a></li>
+              <li <?php if ($active == 'userprofile') echo 'class="active"'; ?>><a href="#user-global" data-toggle="tab">General</a></li>
+              <li <?php if ($active == 'userpass') echo 'class="active"'; ?>><a href="#user-config" data-toggle="tab">Password</a></li>
             </ul>
             <div class="tab-content">
-              <div class="active tab-pane" id="user-global">
-                <?php echo form_open_multipart('users/myProfile', 'class="form-horizontal" id="myprofileform"'); ?>
-                  <div class="form-group">
+              <div class="<?php if ($active == 'userprofile') echo 'active';?> tab-pane" id="user-global">
+                <?php echo form_open_multipart('users/myprofile', 'class="form-group form-horizontal has-feedback" id="myprofileform"'); ?>
+                  <div class="form-group has-feedback">
                     <label for="inputName" class="col-sm-2 control-label">Name</label>
                     <div class="col-sm-10">
                       <?php echo form_input($name);?>
+                      <span class="form-control-feedback"></span>
                     </div>
                   </div>
-                  <div class="form-group">
+                  <div class="form-group has-feedback">
                     <label for="inputEmail" class="col-sm-2 control-label">Email</label>
                     <div class="col-sm-10">
                       <?php echo form_input($email);?>
+                      <span class="form-control-feedback"></span>
                     </div>
                   </div>
                   <div class="form-group">
                     <label for="inputName" class="col-sm-2 control-label">Phone</label>
                     <div class="col-sm-10">
                       <?php echo form_input($phone);?>
+                      <span class="form-control-feedback"></span>
                     </div>
                   </div>
                   <div class="form-group">
@@ -112,8 +115,8 @@
                 <?php echo form_close(); ?>
               </div>
               <!-- /.tab-pane -->
-              <div class="tab-pane" id="user-config">
-                <?php echo form_open('users/myProfile', 'class="form-horizontal" id="mypassform"'); ?>
+              <div class="<?php if ($active == 'userpass') echo 'active';?> tab-pane" id="user-config">
+                <?php echo form_open('users/myprofile', 'class="form-group form-horizontal has-feedback" id="mypassform"'); ?>
                   <div class="form-group has-feedback">
                     <label for="inputoldpassword" class="col-sm-3 control-label">Old Password</label>
                     <div class="col-sm-9">

@@ -114,9 +114,9 @@
             </span>
           </a>
           <ul class="treeview-menu">
-            <li><a href="index.html"><i class="fa fa-circle-o"></i>View All</a></li>
+            <li><a href="<?php echo base_url('users'); ?>"><i class="fa fa-circle-o"></i>View All</a></li>
             <?php if ($user_priv['users_priv']['schema']['insert']) {?>
-            <li><a href="index2.html"><i class="fa fa-circle-o"></i>Add Users</a></li>
+            <li><a href="<?php echo base_url('users/adduser'); ?>"><i class="fa fa-circle-o"></i>Add Users</a></li>
             <?php } ?>
           </ul>
         </li>
@@ -150,13 +150,13 @@
               </ul>
             </li>
             <li>
-              <a href="#"><i class="fa fa-circle-o"></i> Users
+              <a href="#"><i class="fa fa-circle-o"></i> User
                 <span class="pull-right-container">
                   <i class="fa fa-angle-left pull-right"></i>
                 </span>
               </a>
               <ul class="treeview-menu">
-                <li><a href="#"><i class="fa fa-circle-o"></i> User Groups</a></li>
+                <li><a href="<?php echo base_url('usergroups'); ?>"><i class="fa fa-circle-o"></i> User Groups</a></li>
               </ul>
             </li>
           </ul>

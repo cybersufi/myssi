@@ -42,6 +42,35 @@ class User_model extends CI_Model
 		}
 	}
 
+	public function getAllUSer()
+	{
+		$uq = $this->db->query($this->sql['get_all_users']);
+		if ($uq->num_rows() > 0) {
+			$users = array();
+			foreach ($uq->result() as $user) {
+				$u['id'] = $user->id;
+				$u['name'] = $user->name;
+				$u['phone'] = $user->phone;
+				$u['email'] = $user->email;
+				$u['is_active'] = $user->active;
+				$u['groups'] = array();
+
+				$ug = $this->auth_lib->get_user_groups($user->id);
+				if ($ug != null) {
+					foreach ($ug as $g) {
+						$gr['name'] = $g->name;
+						$gr['color'] = $g->color;
+						array_push($u['groups'], $gr);
+					}
+				}
+				array_push($users, $u);
+			}
+			return $users;
+		} else {
+			return NULL;
+		}
+	}
+
 	public function getUserByID($userid)
 	{
 		$query = $this->db->query($this->sql['get_user_by_id'], array($userid));
