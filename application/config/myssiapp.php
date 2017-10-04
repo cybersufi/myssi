@@ -49,5 +49,5 @@ $config['usergrouplist']['full_footer']		= true;
 $config['groupdetail']['css']				= '';
 $config['groupdetail']['js']				= '';
 $config['groupdetail']['main_header']		= true;
-$config['groupdetail']['main_sidebar']	= true;
+$config['groupdetail']['main_sidebar']		= true;
 $config['groupdetail']['full_footer']		= true;

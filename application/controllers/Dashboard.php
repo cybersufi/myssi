@@ -20,6 +20,8 @@ class Dashboard extends MY_Controller
         else
         {
             /* Load Template */
+            $this->menu->set_active_module('dashboard');
+            $data['sidebar'] = $this->menu->build_menu();
             $this->template->render('dashboard', $this->data);
         }
 	}
