@@ -1694,14 +1694,14 @@ class Auth_model extends CI_Model
 
 		$ugroups = $this->db->query($this->sql['get_user_priv'], array($userid));
 
-		if(empty($ugroups->result()) )
+		if(empty($ugroups->result()))
 		{
 			return $schema;
 		}
 
 		$access = 0;
 
-		foreach ($ugroups as $group) 
+		foreach ($ugroups->result() as $group) 
 		{
 			switch($module)
 			{
@@ -1786,17 +1786,20 @@ class Auth_model extends CI_Model
 		{
 			foreach(explode('|',$access) as $a)
 			{
-				if($schema[$a])
+				if(array_key_exists($access, $schema) && $schema[$access])
 				{
 					return true;
 				}
 			}
 		}
-		elseif($schema[$access])
+		elseif(array_key_exists($access, $schema))
 		{
-			return true;
+			return $schema[$access];
 		}
-		return false;    
+		else 
+		{
+			return false;
+		}    
 	}
 
 	public function checkAccess($access,$module,$user_id,$projects_id=false)

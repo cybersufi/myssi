@@ -19,7 +19,7 @@ $config['count_atempt_by_ip']				= 'SELECT 1 FROM login_attempts WHERE ip_addres
 $config['count_atempt_by_email']			= 'SELECT 1 FROM login_attempts WHERE login = ?';
 $config['get_time_by_ip_email']				= 'SELECT MAX (time) FROM login_attempts WHERE ip_address = ? AND login = ?';
 $config['get_time_by_email']				= 'SELECT MAX (time) FROM login_attempts WHERE login = ?';
-$config['get_user_priv'] 					= 'SELECT * FROM users_groups LEFT JOIN groups ON users_groups.group_id = groups.id WHERE users_groups.user_id = ? ';
+$config['get_user_priv'] 					= 'SELECT * FROM users_groups LEFT JOIN groups ON users_groups.group_id = groups.id WHERE users_groups.user_id = ?';
 $config['get_user_group'] 					= 'SELECT groups.name, groups.color FROM groups LEFT JOIN users_groups ON users_groups.group_id = groups.id WHERE users_groups.user_id = ?';
 
 

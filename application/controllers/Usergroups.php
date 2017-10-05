@@ -30,7 +30,7 @@ class Usergroups extends MY_Controller
             $this->data['pagetitle'] = "User Groups";
             $this->load_bsplugin('dataTables'); 
             $this->data['groups'] = $this->usergroup_model->getGroupList();
-            $this->template->render('usergroups/grouplist', $this->data);
+            $this->template->render('usergroups/lists', $this->data);
         }
         else 
         {
