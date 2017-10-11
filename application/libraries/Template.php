@@ -24,7 +24,7 @@ class Template {
             }
 
             if ($data['is_main_sidebar']) {
-                $data['sidebar_links']              = $this->CI->menu->build_menu($content);
+                $data['sidebar_links']              = $this->CI->menu->build_menu($data['module_key']);
                 $this->template['main_sidebar']     = $this->CI->load->view('_templates/main_sidebar', $data, TRUE);
             }
             

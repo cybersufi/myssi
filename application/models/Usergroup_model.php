@@ -13,6 +13,15 @@ class Usergroup_model extends CI_Model
 		$this->sql = $this->config->item('dbquery/usergroup_query');
 	}
 
+	public function getGroupDetail($groupid) 
+	{
+		$query = $this->db->query($this->sql['get_group_detail_by_id'], array($groupid));
+		if ($query->num_rows() > 0) {
+			return $query->row();
+		}
+		return false;
+	}
+
 	public function getGroupList()
 	{
 		$this->load->library('table');
