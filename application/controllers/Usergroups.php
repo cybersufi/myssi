@@ -173,19 +173,30 @@ class Usergroups extends MY_Controller
             $data['discussions_priv']   = $this->input->post('projects_priv');
             $data['config_priv']        = $this->input->post('projects_priv');
             $data['users_priv']         = $this->input->post('projects_priv');
-            
 
-            if ($this->user_model->updateUserData($id, $data))
-            {
-                $this->session->set_flashdata('message', $this->notification->messages());
-                $this->session->set_flashdata('active','userprofile');
-                redirect('users/myprofile', 'refresh');
-            }
-            else
-            {
-                $this->session->set_flashdata('error', $this->notification->errors());
-                $this->session->set_flashdata('active','userprofile');
-                redirect('users/myprofile', 'refresh');
+            if ($group !== false) {
+                $data['id'] = $group->id;
+                if ($this->usergroup_model->updateGroup($data, $group->id))
+                {
+                    $this->session->set_flashdata('message', $this->notification->messages());
+                    redirect('usergroups/lists', 'refresh');
+                }
+                else
+                {
+                    $this->session->set_flashdata('error', $this->notification->errors());
+                    redirect('usergroups/edit/'.$group->id, 'refresh');
+                }
+
+            } else {
+                if ($this->usergroup_model->addGroup($data))
+                {
+                    $this->session->set_flashdata('message', $this->notification->messages());
+                }
+                else
+                {
+                    $this->session->set_flashdata('error', $this->notification->errors());
+                }
+                redirect('usergroups/lists', 'refresh');
             }
         }
         else
